@@ -64,8 +64,8 @@ export const siteConfig = {
   ],
   education: [
     {
-      school: "Long-term Growth Investment Portfolio",
-      degree: "Heavily weighted in tech and communications sectors",
+      school: "Heavily weighted in tech and communications sectors",
+      degree: "Long-term Growth Investment Portfolio",
       dateRange: "2024 - present",
       achievements: [
         "$AAPL, $AMZN, $MSFT, $GOOGL, $META, $NVDA, $PLTR",
@@ -73,8 +73,8 @@ export const siteConfig = {
       ],
     },
     {
-      school: "Blockchain and Quantum Computing",
-      degree: "Cryptocurrency and quantum computer manufacturers",
+      school: "Cryptocurrency and quantum computer manufacturers",
+      degree: "Blockchain and Quantum Computing",
       dateRange: "2025 - present",
       achievements: [
         "Holding Bitcoin",
