@@ -7,5 +7,4 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  site: 'https://bradleyclemson.com',
 });
