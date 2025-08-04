@@ -20,7 +20,7 @@ const hasEducation = siteConfig.education && siteConfig.education.length > 0;
 
           <div class="lg:col-span-8">
             <div class="space-y-8">
-              {siteConfig.education.map((edu) => (
+              {hasEducation && siteConfig.education.map((edu) => (
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6 hover:shadow-md transition-shadow duration-300">
                   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                     <div>
