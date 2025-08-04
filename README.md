@@ -166,7 +166,7 @@ Want to deploy somewhere else? Find more guides [here](https://docs.astro.build/
 
 ## Changelog
 
-To view the changelog, see CHANGELOG.md.
+To view the change log, see CHANGELOG.md.
 
 ## License
 
