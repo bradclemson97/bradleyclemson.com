@@ -28,6 +28,13 @@ export const siteConfig = {
       skills: ["IAM", "RBAC", "Keycloak"],
     },
     {
+      name: "Lawn Intelligence",
+      description:
+        "A mobile-first, fully responsive application that analyzes the health of your lawn using AI.",
+      link: "https://github.com/bradclemson97/lawn-intelligence",
+      skills: ["TypeScript", "React", "Python"],
+    },
+    {
       name: "IoT Aware",
       description:
         "Proposing a conceptual architectural model and mock-up prototype design of a privacy awareness and control interface for IoT systems.",
