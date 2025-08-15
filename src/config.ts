@@ -11,7 +11,7 @@ export const siteConfig = {
   },
   aboutMe:
     "I’m a full-stack developer at Accenture with a masters degree in Computer Science and certifications in AWS and Azure. I build scalable, intelligent systems and, outside work, a part-time investor with a tech-focused, long-term growth strategy. I research AI and quantum computing to stay on the cutting edge while closely following geopolitics to ground technological insight in global context. My work sits at the intersection of engineering excellence, emerging tech, and strategic perspective.",
-  skills: ["Java", "Kotlin", "React", "SQL/PLSQL", "AWS", "Azure", "Docker"],
+  skills: ["Java", "Kotlin", "SQL/PLSQL", "TypeScript", "React", "AWS", "Azure", "Docker"],
   projects: [
     {
       name: "Spring AI",
@@ -30,7 +30,7 @@ export const siteConfig = {
     {
       name: "Lawn Intelligence",
       description:
-        "A mobile-first, fully responsive application that analyzes the health of your lawn using AI.",
+        "A mobile-first, fully responsive application that analyzes the health of your lawn and recommends maintenance actions using AI.",
       link: "https://github.com/bradclemson97/lawn-intelligence",
       skills: ["TypeScript", "React", "Python"],
     },
@@ -39,7 +39,7 @@ export const siteConfig = {
       description:
         "Proposing a conceptual architectural model and mock-up prototype design of a privacy awareness and control interface for IoT systems.",
       link: "https://github.com/bradclemson97/IoTAware",
-      skills: ["IoT", "Privacy", "Security"],
+      skills: ["IoT", "Privacy", "Cyber Security"],
     },
   ],
   experience: [
@@ -80,7 +80,7 @@ export const siteConfig = {
       ],
     },
     {
-      school: "Cryptocurrency and quantum computer manufacturers",
+      school: "Cryptocurrency and quantum computer innovators",
       degree: "Blockchain and Quantum Computing",
       dateRange: "2025 - present",
       achievements: [
