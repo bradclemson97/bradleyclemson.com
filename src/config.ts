@@ -14,11 +14,11 @@ export const siteConfig = {
   skills: ["Java", "Kotlin", "SQL/PLSQL", "TypeScript", "React", "AWS", "Azure", "Docker"],
   projects: [
     {
-      name: "Spring AI",
+      name: "Connecting Databases to AI with MCP",
       description:
-        "Exploring the practical application of generative AI in a Spring Boot application with Spring AI.",
-      link: "https://github.com/bradclemson97/spring-ai-example",
-      skills: ["Java", "Spring", "AI"],
+        "See how the Model Context Protocol lets AI go beyond chat and actually use your data.",
+      link: "https://medium.com/@bradclemson/from-sql-to-smart-assistant-connecting-databases-to-ai-with-mcp-fbf79f752189",
+      skills: ["AI", "MCP", "Python"],
     },
     {
       name: "System User Management",
@@ -26,6 +26,13 @@ export const siteConfig = {
         "A comprehensive User Management and RBAC (Role-based Access Control) solution. Fully scalable and secure with Keycloak IAM.",
       link: "https://github.com/bradclemson97/user-management-service",
       skills: ["IAM", "RBAC", "Keycloak"],
+    },
+    {
+      name: "Spring AI",
+      description:
+        "Exploring the practical application of generative AI in a Spring Boot application with Spring AI.",
+      link: "https://github.com/bradclemson97/spring-ai-example",
+      skills: ["Java", "Spring", "AI"],
     },
     {
       name: "Lawn Intelligence",
