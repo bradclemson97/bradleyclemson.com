@@ -78,21 +78,19 @@ export const siteConfig = {
   ],
   education: [
     {
-      school: "Heavily weighted in tech and communications sectors",
-      degree: "Long-term Growth Investment Portfolio",
+      school: "Heavily weighted in technology and communications sectors",
+      degree: "Primary Long-term Growth Investment Portfolio",
       dateRange: "2024 - present",
       achievements: [
-        "$AAPL, $AMZN, $MSFT, $GOOGL, $META, $NVDA, $PLTR",
-        "As of Aug 2025 the portfolio has a gain of 127%",
+        "A diversified long-term growth portfolio focused on market-leading technology and innovation. Holdings include Apple, Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir, ASML, and NBIS, representing leadership across cloud computing, artificial intelligence, digital platforms, and semiconductor technology.",
       ],
     },
     {
-      school: "Cryptocurrency and quantum computer innovators",
-      degree: "Blockchain and Quantum Computing",
+      school: "Investing in leading innovators",
+      degree: "Quantum Computing",
       dateRange: "2025 - present",
       achievements: [
-        "Holding Bitcoin",
-        "Investor in $IONQ and their Trapped Ion Technology",
+        "A portfolio focused on the rapidly advancing field of quantum computing. Core holdings include IBM, Alphabet (Google Quantum AI), Microsoft, IonQ, Rigetti Computing, Honeywell/Quantinuum, and D-Wave, representing leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
       ],
     },
   ],
