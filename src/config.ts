@@ -93,7 +93,7 @@ export const siteConfig = {
       dateRange: "2025 - present",
       achievements: [
         "A portfolio focused on the rapidly advancing field of quantum computing.",
-        "Core holdings include IBM, Alphabet (Google Quantum AI), Microsoft, IonQ, Rigetti Computing, Honeywell/Quantinuum, and D-Wave."
+        "Core holdings include IBM, Alphabet (Google Quantum AI), Microsoft, IonQ, Rigetti Computing, Honeywell/Quantinuum, and D-Wave.",
         "Represents leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
       ],
     },
