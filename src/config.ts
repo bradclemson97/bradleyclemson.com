@@ -79,10 +79,12 @@ export const siteConfig = {
   education: [
     {
       school: "Heavily weighted in technology and communications sectors",
-      degree: "Primary Long-term Growth Investment Portfolio",
+      degree: "Long-term Growth Investment Portfolio",
       dateRange: "2024 - present",
       achievements: [
-        "A diversified long-term growth portfolio focused on market-leading technology and innovation. Holdings include Apple, Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir, ASML, and NBIS, representing leadership across cloud computing, artificial intelligence, digital platforms, and semiconductor technology.",
+        "A diversified long-term growth portfolio focused on market-leading technology and innovation.",
+        "Holdings include Apple, Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir, ASML, and NBIS.",
+        "Represents leadership across cloud computing, artificial intelligence, digital platforms, and semiconductor technology.",
       ],
     },
     {
@@ -90,7 +92,9 @@ export const siteConfig = {
       degree: "Quantum Computing",
       dateRange: "2025 - present",
       achievements: [
-        "A portfolio focused on the rapidly advancing field of quantum computing. Core holdings include IBM, Alphabet (Google Quantum AI), Microsoft, IonQ, Rigetti Computing, Honeywell/Quantinuum, and D-Wave, representing leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
+        "A portfolio focused on the rapidly advancing field of quantum computing.",
+        "Core holdings include IBM, Alphabet (Google Quantum AI), Microsoft, IonQ, Rigetti Computing, Honeywell/Quantinuum, and D-Wave.",
+        "Represents leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
       ],
     },
   ],
