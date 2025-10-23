@@ -14,9 +14,9 @@ export const siteConfig = {
   skills: ["Java", "Python", "SQL/PLSQL", "TypeScript", "React", "AWS", "Azure", "Docker"],
   projects: [
     {
-      name: "Connecting Databases to AI with MCP",
+      name: "Employee Smart Assistant",
       description:
-        "See how the Model Context Protocol lets AI go beyond chat and actually use your data.",
+        "Building a MCP (Model Context Protocol) server exposing data from a PostgreSQL database, then connecting it to a smart assistant client.",
       link: "https://medium.com/@bradclemson/from-sql-to-smart-assistant-connecting-databases-to-ai-with-mcp-fbf79f752189",
       skills: ["AI", "MCP", "Python"],
     },
@@ -83,7 +83,7 @@ export const siteConfig = {
       dateRange: "2024 - present",
       achievements: [
         "A diversified long-term growth portfolio focused on market-leading technology and innovation.",
-        "Holdings include Apple, Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir, ASML, and NBIS.",
+        "Holdings include Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir and ASML.",
         "Represents leadership across cloud computing, artificial intelligence, digital platforms, and semiconductor technology.",
       ],
     },
@@ -93,8 +93,7 @@ export const siteConfig = {
       dateRange: "2025 - present",
       achievements: [
         "A portfolio focused on the rapidly advancing field of quantum computing.",
-        "Core holdings include IBM, Alphabet (Google Quantum AI), Microsoft, IonQ, Rigetti Computing, Honeywell/Quantinuum, and D-Wave.",
-        "Represents leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
+        "Core holdings include leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
       ],
     },
   ],
