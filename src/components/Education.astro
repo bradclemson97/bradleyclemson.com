@@ -72,7 +72,10 @@ const portfolioData = await getMonthlyPortfolioPerformance();
                 Portfolio Performance
               </h3>
 
-              <PortfolioSvgChart data={portfolioData} />
+              {/* Responsive SVG wrapper */}
+              <div class="w-full overflow-hidden">
+                <PortfolioSvgChart data={portfolioData} />
+              </div>
 
               <p class="text-xs text-gray-500 mt-3 max-w-xl">
                 Relative price performance since January 2024 using monthly
