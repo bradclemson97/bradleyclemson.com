@@ -1,13 +1,13 @@
 ---
 const { data, width = 800, height = 360, padding = 50 } = Astro.props;
 
-// Auto-detect symbols from the first data point
+// Auto-detect symbols from the first data point, including portfolio average if present
 const symbols = Object.keys(data[0] ?? {}).filter((k) => k !== "date");
 
-// Assign distinct colors
+// Assign colors (portfolio average gets a neutral color)
 const palette = ["#111827", "#2563eb", "#16a34a", "#9333ea", "#059669", "#f59e0b", "#dc2626", "#f97316", "#8b5cf6"];
 const colors = Object.fromEntries(
-  symbols.map((s, i) => [s, palette[i % palette.length]])
+  symbols.map((s, i) => [s, s === "PORTFOLIO_AVG" ? "#000000" : palette[i % palette.length]])
 );
 
 const dates = data.map((d) => d.date);
@@ -51,7 +51,7 @@ const linePath = (symbol) =>
 
     <!-- Data lines -->
     {symbols.map((symbol) => (
-      <path d={linePath(symbol)} fill="none" stroke={colors[symbol]} stroke-width="2" />
+      <path d={linePath(symbol)} fill="none" stroke={colors[symbol]} stroke-width={symbol === "PORTFOLIO_AVG" ? 3 : 2} />
     ))}
 
     <!-- X-axis labels removed for clarity -->
@@ -65,7 +65,9 @@ const linePath = (symbol) =>
           class="w-3 h-3 rounded-full flex-shrink-0"
           style={`background-color: ${colors[symbol]}`}
         ></span>
-        <span class="font-medium truncate max-w-[80px] sm:max-w-[120px]">{symbol}</span>
+        <span class="font-medium truncate max-w-[80px] sm:max-w-[120px]">
+          {symbol === "PORTFOLIO_AVG" ? "Portfolio Avg" : symbol}
+        </span>
       </div>
     ))}
   </div>
