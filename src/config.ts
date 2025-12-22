@@ -11,7 +11,7 @@ export const siteConfig = {
   },
   aboutMe:
     "I’m a full-stack developer with a masters degree in Computer Science and certifications in AWS and Azure. I build scalable, intelligent systems and, outside work, a part-time investor with a tech-focused, long-term growth strategy. I research AI and quantum computing to stay on the cutting edge while closely following geopolitics to ground technological insight in global context. My work sits at the intersection of engineering excellence, emerging tech, and strategic perspective.",
-  skills: ["Java", "Python", "SQL/PLSQL", "TypeScript", "React", "AWS", "Azure", "Docker"],
+  skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
     {
       name: "Employee Smart Assistant",
@@ -85,15 +85,6 @@ export const siteConfig = {
         "A diversified long-term growth portfolio focused on market-leading technology and innovation.",
         "Holdings include Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir and ASML.",
         "Represents leadership across cloud computing, artificial intelligence, digital platforms, and semiconductor technology.",
-      ],
-    },
-    {
-      school: "Investing in leading innovators",
-      degree: "Quantum Computing",
-      dateRange: "2025 - present",
-      achievements: [
-        "A portfolio focused on the rapidly advancing field of quantum computing.",
-        "Core holdings include leaders across quantum hardware, cloud-based quantum services, and enabling technologies.",
       ],
     },
   ],

@@ -1,13 +1,20 @@
 ---
 import { siteConfig } from "../config.ts";
+import { getMonthlyPortfolioPerformance } from "../lib/portfolioMonthly";
+import PortfolioSvgChart from "../components/PortfolioSvgChart.astro";
+
 const education = siteConfig.education ?? [];
 const hasEducation = education.length > 0;
+
+// Fetch monthly performance at build time
+const portfolioData = await getMonthlyPortfolioPerformance();
 ---
 
 {hasEducation && (
   <section id="education" class="p-8 sm:p-12 md:p-16 lg:p-24">
     <div>
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        {/* Left column */}
         <div class="lg:col-span-4">
           <h2 class="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-bold text-gray-900">
             Investments
@@ -18,8 +25,10 @@ const hasEducation = education.length > 0;
           />
         </div>
 
+        {/* Right column */}
         <div class="lg:col-span-8">
           <div class="space-y-8">
+            {/* Investment thesis card */}
             {education.map((edu, index) => (
               <div
                 class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6 hover:shadow-md transition-shadow duration-300"
@@ -56,6 +65,20 @@ const hasEducation = education.length > 0;
                 )}
               </div>
             ))}
+
+            {/* Static SVG portfolio chart */}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+                Portfolio Performance
+              </h3>
+
+              <PortfolioSvgChart data={portfolioData} />
+
+              <p class="text-xs text-gray-500 mt-3 max-w-xl">
+                Relative price performance since January 2024 using monthly
+                adjusted close data. For illustrative purposes only.
+              </p>
+            </div>
           </div>
         </div>
       </div>
