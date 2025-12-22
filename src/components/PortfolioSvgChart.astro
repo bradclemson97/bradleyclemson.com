@@ -1,42 +1,24 @@
 ---
-const {
-  data,
-  width = 800,
-  height = 360,
-  padding = 50,
-} = Astro.props;
+const { data, width = 800, height = 360, padding = 50 } = Astro.props;
 
-const symbols = ["AMZN", "MSFT", "GOOGL", "META", "NVDA", "PLTR", "ASML"];
+// Auto-detect symbols from the first data point
+const symbols = Object.keys(data[0] ?? {}).filter((k) => k !== "date");
 
-const colors = {
-  AMZN: "#111827",
-  MSFT: "#2563eb",
-  GOOGL: "#16a34a",
-  META: "#9333ea",
-  NVDA: "#059669",
-  PLTR: "#f59e0b",
-  ASML: "#dc2626",
-};
-
-const dates = data.map(d => d.date);
-
-const allValues = data.flatMap(d =>
-  symbols.map(s => Number(d[s] ?? 0))
+// Assign distinct colors
+const palette = ["#111827", "#2563eb", "#16a34a", "#9333ea", "#059669", "#f59e0b", "#dc2626", "#f97316", "#8b5cf6"];
+const colors = Object.fromEntries(
+  symbols.map((s, i) => [s, palette[i % palette.length]])
 );
 
+const dates = data.map((d) => d.date);
+
+// Flatten all values to determine Y scale
+const allValues = data.flatMap((d) => symbols.map((s) => Number(d[s] ?? 0)));
 const minY = Math.min(...allValues);
 const maxY = Math.max(...allValues);
 
-// Reduce label density for mobile-sized charts
-const showEvery = dates.length > 8 ? 2 : 1;
-
-const xScale = (i) =>
-  padding + (i / (dates.length - 1)) * (width - padding * 2);
-
-const yScale = (v) =>
-  height -
-  padding -
-  ((v - minY) / (maxY - minY)) * (height - padding * 2);
+const xScale = (i) => padding + (i / (dates.length - 1)) * (width - padding * 2);
+const yScale = (v) => height - padding - ((v - minY) / (maxY - minY)) * (height - padding * 2);
 
 const linePath = (symbol) =>
   data
@@ -47,72 +29,44 @@ const linePath = (symbol) =>
     })
     .join(" ");
 ---
+<div class="w-full overflow-hidden">
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    preserveAspectRatio="xMidYMid meet"
+    class="w-full h-auto max-w-full"
+  >
+    <!-- Axes -->
+    <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#e5e7eb" />
+    <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" />
 
-<svg
-  viewBox={`0 0 ${width} ${height}`}
-  preserveAspectRatio="xMidYMid meet"
-  class="w-full h-auto max-w-full"
->
-  <!-- Axes -->
-  <line
-    x1={padding}
-    y1={padding}
-    x2={padding}
-    y2={height - padding}
-    stroke="#e5e7eb"
-  />
-  <line
-    x1={padding}
-    y1={height - padding}
-    x2={width - padding}
-    y2={height - padding}
-    stroke="#e5e7eb"
-  />
+    <!-- Y-axis labels & grid -->
+    {[minY, (minY + maxY) / 2, maxY].map((v) => (
+      <g>
+        <text x={padding - 10} y={yScale(v) + 4} text-anchor="end" font-size="11" fill="#6b7280">
+          {v.toFixed(0)}%
+        </text>
+        <line x1={padding} x2={width - padding} y1={yScale(v)} y2={yScale(v)} stroke="#f3f4f6" />
+      </g>
+    ))}
 
-  <!-- Y-axis labels & grid -->
-  {[minY, (minY + maxY) / 2, maxY].map((v) => (
-    <g>
-      <text
-        x={padding - 10}
-        y={yScale(v) + 4}
-        text-anchor="end"
-        font-size="11"
-        fill="#6b7280"
-      >
-        {v.toFixed(0)}%
-      </text>
-      <line
-        x1={padding}
-        x2={width - padding}
-        y1={yScale(v)}
-        y2={yScale(v)}
-        stroke="#f3f4f6"
-      />
-    </g>
-  ))}
+    <!-- Data lines -->
+    {symbols.map((symbol) => (
+      <path d={linePath(symbol)} fill="none" stroke={colors[symbol]} stroke-width="2" />
+    ))}
 
-  <!-- Data lines -->
-  {symbols.map((symbol) => (
-    <path
-      d={linePath(symbol)}
-      fill="none"
-      stroke={colors[symbol]}
-      stroke-width="2"
-    />
-  ))}
+    <!-- X-axis labels removed for clarity -->
+  </svg>
 
-  <!-- X-axis labels (thinned for mobile) -->
-  {dates.map((date, i) => (
-    i % showEvery === 0 && (
-      <text
-        x={xScale(i)}
-        y={height - padding + 18}
-        text-anchor="middle"
-        font-size="11"
-        fill="#6b7280"
-      >
-        {date.slice(0, 7)}
-      </text>
-    )
-  ))}
-</svg>
+  <!-- Responsive Legend -->
+  <div class="flex flex-wrap gap-4 mt-3">
+    {symbols.map((symbol) => (
+      <div class="flex items-center gap-2 text-xs sm:text-sm">
+        <span
+          class="w-3 h-3 rounded-full flex-shrink-0"
+          style={`background-color: ${colors[symbol]}`}
+        ></span>
+        <span class="font-medium truncate max-w-[80px] sm:max-w-[120px]">{symbol}</span>
+      </div>
+    ))}
+  </div>
+</div>

@@ -10,7 +10,7 @@ export const siteConfig = {
     github: "https://github.com/bradclemson97",
   },
   aboutMe:
-    "I’m a full-stack developer with a masters degree in Computer Science and certifications in AWS and Azure. I build scalable, intelligent systems and, outside work, a part-time investor with a tech-focused, long-term growth strategy. I research AI and quantum computing to stay on the cutting edge while closely following geopolitics to ground technological insight in global context. My work sits at the intersection of engineering excellence, emerging tech, and strategic perspective.",
+    "I’m a full-stack developer with a masters degree in Computer Science and certifications in AWS, Azure and Palantir. I build scalable, intelligent systems and, outside work, a part-time investor with a tech-focused, long-term growth strategy. I research AI and quantum computing to stay on the cutting edge while closely following geopolitics to ground technological insight in global context. My work sits at the intersection of engineering excellence, emerging tech, and strategic perspective.",
   skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
     {
