@@ -28,13 +28,13 @@ const linePath = (symbol) =>
 ---
 
 <div class="w-full overflow-hidden">
-  <svg id="portfolio-chart" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" class="w-full h-auto" role="img" aria-label="Portfolio performance chart">
+  <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" class="w-full h-auto">
 
     <style>
-      .chart-line { transition: opacity 0.2s, stroke-width 0.2s; opacity: 0.3; }
-      .chart-line.active { opacity: 1; stroke-width: 3; }
-      .portfolio-line { stroke-width: 4; opacity: 0.6; }
-      .portfolio-line.active { stroke-width: 5; opacity: 1; }
+      /* Base style for lines */
+      .chart-line { opacity: 0.6; transition: opacity 0.2s, stroke-width 0.2s; }
+      /* Portfolio average line is thicker */
+      .portfolio-line { stroke-width: 4; opacity: 0.8; }
     </style>
 
     <!-- Axes -->
@@ -51,33 +51,20 @@ const linePath = (symbol) =>
 
     <!-- Lines -->
     {symbols.map(symbol => (
-      <g key={symbol}>
-        <path
-          d={linePath(symbol)}
-          fill="none"
-          stroke={colors[symbol]}
-          class={symbol === "PORTFOLIO_AVG" ? "portfolio-line" : "chart-line"}
-          data-symbol={symbol}
-        />
-
-        {data.map((d, i) => (
-          <circle
-            cx={xScale(i)}
-            cy={yScale(d[symbol])}
-            r={6}
-            fill="transparent"
-          >
-            <title>{`${symbol === "PORTFOLIO_AVG" ? "Portfolio Avg" : symbol}: ${d[symbol].toFixed(2)}%`}</title>
-          </circle>
-        ))}
-      </g>
+      <path
+        d={linePath(symbol)}
+        fill="none"
+        stroke={colors[symbol]}
+        class={symbol === "PORTFOLIO_AVG" ? "portfolio-line" : "chart-line"}
+        stroke-width={symbol === "PORTFOLIO_AVG" ? 4 : 2}
+      />
     ))}
   </svg>
 
   <!-- Legend -->
   <div class="flex flex-wrap gap-4 mt-3 overflow-x-auto">
     {symbols.map(symbol => (
-      <div class="flex items-center gap-2 text-xs sm:text-sm cursor-pointer" key={symbol} data-symbol={symbol}>
+      <div class="flex items-center gap-2 text-xs sm:text-sm" key={symbol}>
         <span class="w-3 h-3 rounded-full flex-shrink-0" style={`background-color: ${colors[symbol]}`}></span>
         <span class={symbol === "PORTFOLIO_AVG" ? "font-semibold truncate max-w-[120px]" : "font-medium truncate max-w-[120px]"}>
           {symbol === "PORTFOLIO_AVG" ? "Portfolio Avg" : symbol}
@@ -86,23 +73,3 @@ const linePath = (symbol) =>
     ))}
   </div>
 </div>
-
-<script is:inline>
-  const chart = document.getElementById('portfolio-chart');
-  const lines = chart.querySelectorAll('path[data-symbol]');
-  const legendItems = document.querySelectorAll('[data-symbol]');
-
-  function setActive(symbol) {
-    lines.forEach(l => {
-      if (l.dataset.symbol === symbol) l.classList.add('active');
-      else l.classList.remove('active');
-    });
-  }
-
-  legendItems.forEach(item => {
-    const sym = item.dataset.symbol;
-    item.addEventListener('click', () => setActive(sym));
-    item.addEventListener('mouseover', () => setActive(sym));
-    item.addEventListener('mouseout', () => lines.forEach(l => l.classList.remove('active')));
-  });
-</script>
