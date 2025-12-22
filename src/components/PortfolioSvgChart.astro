@@ -19,6 +19,7 @@ const colors = {
 };
 
 const dates = data.map(d => d.date);
+
 const allValues = data.flatMap(d =>
   symbols.map(s => Number(d[s] ?? 0))
 );
@@ -26,11 +27,16 @@ const allValues = data.flatMap(d =>
 const minY = Math.min(...allValues);
 const maxY = Math.max(...allValues);
 
+// Reduce label density for mobile-sized charts
+const showEvery = dates.length > 8 ? 2 : 1;
+
 const xScale = (i) =>
   padding + (i / (dates.length - 1)) * (width - padding * 2);
 
 const yScale = (v) =>
-  height - padding - ((v - minY) / (maxY - minY)) * (height - padding * 2);
+  height -
+  padding -
+  ((v - minY) / (maxY - minY)) * (height - padding * 2);
 
 const linePath = (symbol) =>
   data
@@ -41,13 +47,30 @@ const linePath = (symbol) =>
     })
     .join(" ");
 ---
-<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-  <!-- Axes -->
-  <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#e5e7eb" />
-  <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" />
 
-  <!-- Y-axis labels -->
-  {[minY, (minY + maxY) / 2, maxY].map((v, i) => (
+<svg
+  viewBox={`0 0 ${width} ${height}`}
+  preserveAspectRatio="xMidYMid meet"
+  class="w-full h-auto max-w-full"
+>
+  <!-- Axes -->
+  <line
+    x1={padding}
+    y1={padding}
+    x2={padding}
+    y2={height - padding}
+    stroke="#e5e7eb"
+  />
+  <line
+    x1={padding}
+    y1={height - padding}
+    x2={width - padding}
+    y2={height - padding}
+    stroke="#e5e7eb"
+  />
+
+  <!-- Y-axis labels & grid -->
+  {[minY, (minY + maxY) / 2, maxY].map((v) => (
     <g>
       <text
         x={padding - 10}
@@ -68,7 +91,7 @@ const linePath = (symbol) =>
     </g>
   ))}
 
-  <!-- Lines -->
+  <!-- Data lines -->
   {symbols.map((symbol) => (
     <path
       d={linePath(symbol)}
@@ -78,16 +101,18 @@ const linePath = (symbol) =>
     />
   ))}
 
-  <!-- X-axis labels -->
+  <!-- X-axis labels (thinned for mobile) -->
   {dates.map((date, i) => (
-    <text
-      x={xScale(i)}
-      y={height - padding + 18}
-      text-anchor="middle"
-      font-size="11"
-      fill="#6b7280"
-    >
-      {date.slice(0, 7)}
-    </text>
+    i % showEvery === 0 && (
+      <text
+        x={xScale(i)}
+        y={height - padding + 18}
+        text-anchor="middle"
+        font-size="11"
+        fill="#6b7280"
+      >
+        {date.slice(0, 7)}
+      </text>
+    )
   ))}
 </svg>
