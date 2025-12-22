@@ -15,7 +15,7 @@ const allValues = data.flatMap(d => symbols.map(s => Number(d[s] ?? 0)));
 const minY = Math.min(...allValues);
 const maxY = Math.max(...allValues);
 
-// Add a small padding so lines don't touch top/bottom
+// Add a small padding so lines do not touch top/bottom
 const yPadding = (maxY - minY) * 0.05;
 const minYPadded = minY - yPadding;
 const maxYPadded = maxY + yPadding;
