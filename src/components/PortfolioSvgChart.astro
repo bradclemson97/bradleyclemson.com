@@ -1,0 +1,93 @@
+---
+const {
+  data,
+  width = 800,
+  height = 360,
+  padding = 50,
+} = Astro.props;
+
+const symbols = ["AMZN", "MSFT", "GOOGL", "META", "NVDA", "PLTR", "ASML"];
+
+const colors = {
+  AMZN: "#111827",
+  MSFT: "#2563eb",
+  GOOGL: "#16a34a",
+  META: "#9333ea",
+  NVDA: "#059669",
+  PLTR: "#f59e0b",
+  ASML: "#dc2626",
+};
+
+const dates = data.map(d => d.date);
+const allValues = data.flatMap(d =>
+  symbols.map(s => Number(d[s] ?? 0))
+);
+
+const minY = Math.min(...allValues);
+const maxY = Math.max(...allValues);
+
+const xScale = (i) =>
+  padding + (i / (dates.length - 1)) * (width - padding * 2);
+
+const yScale = (v) =>
+  height - padding - ((v - minY) / (maxY - minY)) * (height - padding * 2);
+
+const linePath = (symbol) =>
+  data
+    .map((d, i) => {
+      const x = xScale(i);
+      const y = yScale(d[symbol]);
+      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+    })
+    .join(" ");
+---
+<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+  <!-- Axes -->
+  <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#e5e7eb" />
+  <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" />
+
+  <!-- Y-axis labels -->
+  {[minY, (minY + maxY) / 2, maxY].map((v, i) => (
+    <g>
+      <text
+        x={padding - 10}
+        y={yScale(v) + 4}
+        text-anchor="end"
+        font-size="11"
+        fill="#6b7280"
+      >
+        {v.toFixed(0)}%
+      </text>
+      <line
+        x1={padding}
+        x2={width - padding}
+        y1={yScale(v)}
+        y2={yScale(v)}
+        stroke="#f3f4f6"
+      />
+    </g>
+  ))}
+
+  <!-- Lines -->
+  {symbols.map((symbol) => (
+    <path
+      d={linePath(symbol)}
+      fill="none"
+      stroke={colors[symbol]}
+      stroke-width="2"
+    />
+  ))}
+
+  <!-- X-axis labels -->
+  {dates.map((date, i) => (
+    <text
+      x={xScale(i)}
+      y={height - padding + 18}
+      text-anchor="middle"
+      font-size="11"
+      fill="#6b7280"
+    >
+      {date.slice(0, 7)}
+    </text>
+  ))}
+</svg>
