@@ -5,9 +5,23 @@ const { data, width = 800, height = 360, padding = 50 } = Astro.props;
 const symbols = Object.keys(data[0] ?? {}).filter((k) => k !== "date");
 
 // Assign colors (portfolio average in black)
-const palette = ["#111827", "#2563eb", "#16a34a", "#9333ea", "#059669", "#f59e0b", "#dc2626"];
+// Distinct, non-black palette for stocks
+const palette = [
+  "#2563eb", // blue
+  "#16a34a", // green
+  "#9333ea", // purple
+  "#059669", // teal
+  "#f59e0b", // amber
+  "#dc2626", // red
+  "#0ea5e9", // sky
+];
+
+// Assign colors (portfolio average always black)
 const colors = Object.fromEntries(
-  symbols.map((s, i) => [s, s === "PORTFOLIO_AVG" ? "#000000" : palette[i % palette.length]])
+  symbols.map((s, i) => [
+    s,
+    s === "PORTFOLIO_AVG" ? "#000000" : palette[i % palette.length],
+  ])
 );
 
 const dates = data.map((d) => d.date);
@@ -66,7 +80,9 @@ const linePath = (symbol) =>
     {symbols.map(symbol => (
       <div class="flex items-center gap-2 text-xs sm:text-sm" key={symbol}>
         <span class="w-3 h-3 rounded-full flex-shrink-0" style={`background-color: ${colors[symbol]}`}></span>
-        <span class={symbol === "PORTFOLIO_AVG" ? "font-semibold truncate max-w-[120px]" : "font-medium truncate max-w-[120px]"}>
+        <span class={symbol === "PORTFOLIO_AVG"
+          ? "font-semibold text-gray-900"
+          : "font-medium text-gray-700"}>
           {symbol === "PORTFOLIO_AVG" ? "Portfolio Avg" : symbol}
         </span>
       </div>
