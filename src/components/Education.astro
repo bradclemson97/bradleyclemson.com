@@ -25,6 +25,22 @@ if (latest) {
     }
   }
 }
+
+// === Average annual return (CAGR) ===
+let avgAnnualReturn = 0;
+
+if (portfolioData.length > 1) {
+  const months = portfolioData.length - 1;
+  const years = months / 12;
+
+  const endingValue = 1 + totalReturn / 100;
+
+  avgAnnualReturn =
+    years > 0
+      ? (Math.pow(endingValue, 1 / years) - 1) * 100
+      : 0;
+}
+
 ---
 
 {hasEducation && (
@@ -90,19 +106,19 @@ if (latest) {
 
           <div class="bg-white rounded-lg border border-gray-100 p-4">
             <p class="text-xs uppercase tracking-wide text-gray-500">
-              Top Stock Gain
+              Avg Annual Return
             </p>
             <p
               class="text-2xl font-semibold mt-1"
               class:list={{
-                "text-green-600": topStockGain >= 0,
-                "text-red-600": topStockGain < 0,
+                "text-green-600": avgAnnualReturn >= 0,
+                "text-red-600": avgAnnualReturn < 0,
               }}
             >
-              {topStockGain.toFixed(2)}%
+              {avgAnnualReturn.toFixed(2)}%
             </p>
             <p class="text-xs text-gray-500 mt-1">
-              Latest month
+              Annualised (CAGR)
             </p>
           </div>
         </div>
