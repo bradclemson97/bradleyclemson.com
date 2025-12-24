@@ -5,6 +5,26 @@ import portfolioData from "../data/portfolioMonthly.json";
 
 const education = siteConfig.education ?? [];
 const hasEducation = education.length > 0;
+
+// === Portfolio stats ===
+const latest = portfolioData.at(-1);
+
+let totalReturn = 0;
+let topStock = "";
+let topStockGain = -Infinity;
+
+if (latest) {
+  totalReturn = latest["PORTFOLIO_AVG"] ?? 0;
+
+  for (const [key, value] of Object.entries(latest)) {
+    if (key !== "date" && key !== "PORTFOLIO_AVG") {
+      if (value > topStockGain) {
+        topStockGain = value;
+        topStock = key;
+      }
+    }
+  }
+}
 ---
 
 {hasEducation && (
@@ -41,6 +61,51 @@ const hasEducation = education.length > 0;
             )}
           </div>
         ))}
+
+        {/* Portfolio Stats */}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white rounded-lg border border-gray-100 p-4">
+            <p class="text-xs uppercase tracking-wide text-gray-500">
+              Total Return
+            </p>
+            <p class="text-2xl font-semibold text-gray-900 mt-1">
+              {totalReturn.toFixed(2)}%
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              Since Jan 2024
+            </p>
+          </div>
+
+          <div class="bg-white rounded-lg border border-gray-100 p-4">
+            <p class="text-xs uppercase tracking-wide text-gray-500">
+              Top Stock
+            </p>
+            <p class="text-2xl font-semibold text-gray-900 mt-1">
+              {topStock}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              Best performer
+            </p>
+          </div>
+
+          <div class="bg-white rounded-lg border border-gray-100 p-4">
+            <p class="text-xs uppercase tracking-wide text-gray-500">
+              Top Stock Gain
+            </p>
+            <p
+              class="text-2xl font-semibold mt-1"
+              class:list={{
+                "text-green-600": topStockGain >= 0,
+                "text-red-600": topStockGain < 0,
+              }}
+            >
+              {topStockGain.toFixed(2)}%
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              Latest month
+            </p>
+          </div>
+        </div>
 
         {/* Portfolio Chart */}
         <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6">
