@@ -55,6 +55,11 @@ const linePath = (symbol) =>
 // Last-point helpers
 const lastIndex = data.length - 1;
 const lastX = xScale(lastIndex);
+
+// Last-value badges
+const BADGE_WIDTH = 56;
+const BADGE_HEIGHT = 20;
+const BADGE_OFFSET = 8;
 ---
 
 <div class="w-full overflow-hidden relative">
@@ -125,11 +130,19 @@ const lastX = xScale(lastIndex);
       const lastValue = Number(data[lastIndex][symbol] ?? 0);
       const y = yScale(lastValue);
 
+      // Flip badge left if it would overflow right edge
+      const flipLeft =
+        lastX + BADGE_OFFSET + BADGE_WIDTH > width - padding;
+
+      const badgeX = flipLeft
+        ? lastX - BADGE_OFFSET - BADGE_WIDTH
+        : lastX + BADGE_OFFSET;
+
+      const textX = badgeX + BADGE_WIDTH / 2;
+
       return (
-        <g
-          class="value-badge"
-          data-symbol={symbol}
-        >
+        <g class="value-badge" data-symbol={symbol}>
+          <!-- Point -->
           <circle
             cx={lastX}
             cy={y}
@@ -137,19 +150,21 @@ const lastX = xScale(lastIndex);
             fill={colors[symbol]}
           />
 
+          <!-- Badge background -->
           <rect
-            x={lastX + 8}
-            y={y - 10}
+            x={badgeX}
+            y={y - BADGE_HEIGHT / 2}
             rx="4"
             ry="4"
-            width="52"
-            height="20"
+            width={BADGE_WIDTH}
+            height={BADGE_HEIGHT}
             fill="white"
             stroke="#e5e7eb"
           />
 
+          <!-- Badge text -->
           <text
-            x={lastX + 34}
+            x={textX}
             y={y + 4}
             text-anchor="middle"
             font-size="11"
