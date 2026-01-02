@@ -3,7 +3,7 @@ import { siteConfig } from "../config.ts";
 
 const hasProjects = siteConfig.projects && siteConfig.projects.length > 0;
 const hasExperience = siteConfig.experience && siteConfig.experience.length > 0;
-const hasEducation = siteConfig.education && siteConfig.education.length > 0;
+const hasInvestments = siteConfig.investments && siteConfig.investments.length > 0;
 ---
 
 <footer class="relative bg-gray-50 border-t border-gray-200">
@@ -149,9 +149,9 @@ const hasEducation = siteConfig.education && siteConfig.education.length > 0;
             )
           }
           {
-            hasEducation && (
+            hasInvestments && (
               <a
-                href="#education"
+                href="#investments"
                 class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Investments
