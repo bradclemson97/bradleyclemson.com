@@ -4,8 +4,7 @@ const { data, width = 800, height = 360, padding = 50 } = Astro.props;
 // Auto-detect symbols
 const symbols = Object.keys(data[0] ?? {}).filter((k) => k !== "date");
 
-// Assign colors (portfolio average in black)
-// Distinct, non-black palette for stocks
+// Distinct palette (portfolio avg always black)
 const palette = [
   "#2563eb", // blue
   "#16a34a", // green
@@ -16,7 +15,6 @@ const palette = [
   "#0ea5e9", // sky
 ];
 
-// Assign colors (portfolio average always black)
 const colors = Object.fromEntries(
   symbols.map((s, i) => [
     s,
@@ -25,51 +23,102 @@ const colors = Object.fromEntries(
 );
 
 const dates = data.map((d) => d.date);
-const allValues = data.flatMap(d => symbols.map(s => Number(d[s] ?? 0)));
+const allValues = data.flatMap((d) =>
+  symbols.map((s) => Number(d[s] ?? 0))
+);
+
 const minY = Math.min(...allValues);
 const maxY = Math.max(...allValues);
 
-// Add a small padding so lines do not touch top/bottom
+// Pad Y range
 const yPadding = (maxY - minY) * 0.05;
 const minYPadded = minY - yPadding;
 const maxYPadded = maxY + yPadding;
 
-const xScale = (i) => padding + (i / (dates.length - 1)) * (width - padding * 2);
-const yScale = (v) => height - padding - ((v - minYPadded) / (maxYPadded - minYPadded)) * (height - padding * 2);
+const xScale = (i) =>
+  padding + (i / (dates.length - 1)) * (width - padding * 2);
+
+const yScale = (v) =>
+  height -
+  padding -
+  ((v - minYPadded) / (maxYPadded - minYPadded)) *
+    (height - padding * 2);
 
 const linePath = (symbol) =>
-  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(d[symbol])}`).join(" ");
+  data
+    .map(
+      (d, i) =>
+        `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(d[symbol])}`
+    )
+    .join(" ");
 ---
 
 <div class="w-full overflow-hidden">
-  <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" class="w-full h-auto">
-
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    preserveAspectRatio="xMidYMid meet"
+    class="w-full h-auto"
+  >
     <style>
-      /* Base style for lines */
-      .chart-line { opacity: 0.6; transition: opacity 0.2s, stroke-width 0.2s; }
-      /* Portfolio average line is thicker */
-      .portfolio-line { stroke-width: 4; opacity: 0.8; }
+      .chart-line {
+        opacity: 0.6;
+        transition: opacity 0.2s ease, stroke-width 0.2s ease;
+      }
+
+      .portfolio-line {
+        opacity: 0.8;
+        stroke-width: 4;
+      }
     </style>
 
     <!-- Axes -->
-    <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#e5e7eb" />
-    <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" />
+    <line
+      x1={padding}
+      y1={padding}
+      x2={padding}
+      y2={height - padding}
+      stroke="#e5e7eb"
+    />
+    <line
+      x1={padding}
+      y1={height - padding}
+      x2={width - padding}
+      y2={height - padding}
+      stroke="#e5e7eb"
+    />
 
-    <!-- Y-axis labels -->
-    {[minY, (minY + maxY)/2, maxY].map(v => (
+    <!-- Y-axis labels + grid -->
+    {[minY, (minY + maxY) / 2, maxY].map((v) => (
       <g>
-        <text x={padding-10} y={yScale(v)+4} text-anchor="end" font-size="11" fill="#6b7280">{v.toFixed(0)}%</text>
-        <line x1={padding} x2={width-padding} y1={yScale(v)} y2={yScale(v)} stroke="#f3f4f6" />
+        <text
+          x={padding - 10}
+          y={yScale(v) + 4}
+          text-anchor="end"
+          font-size="11"
+          fill="#6b7280"
+        >
+          {v.toFixed(0)}%
+        </text>
+        <line
+          x1={padding}
+          x2={width - padding}
+          y1={yScale(v)}
+          y2={yScale(v)}
+          stroke="#f3f4f6"
+        />
       </g>
     ))}
 
     <!-- Lines -->
-    {symbols.map(symbol => (
+    {symbols.map((symbol) => (
       <path
         d={linePath(symbol)}
         fill="none"
         stroke={colors[symbol]}
-        class={symbol === "PORTFOLIO_AVG" ? "portfolio-line" : "chart-line"}
+        data-symbol={symbol}
+        class={`chart-line ${
+          symbol === "PORTFOLIO_AVG" ? "portfolio-line" : ""
+        }`}
         stroke-width={symbol === "PORTFOLIO_AVG" ? 4 : 2}
       />
     ))}
@@ -77,15 +126,58 @@ const linePath = (symbol) =>
 
   <!-- Legend -->
   <div class="flex flex-wrap gap-4 mt-3 overflow-x-auto">
-    {symbols.map(symbol => (
-      <div class="flex items-center gap-2 text-xs sm:text-sm" key={symbol}>
-        <span class="w-3 h-3 rounded-full flex-shrink-0" style={`background-color: ${colors[symbol]}`}></span>
-        <span class={symbol === "PORTFOLIO_AVG"
-          ? "font-semibold text-gray-900"
-          : "font-medium text-gray-700"}>
+    {symbols.map((symbol) => (
+      <div
+        class="legend-item flex items-center gap-2 text-xs sm:text-sm cursor-pointer select-none opacity-70 hover:opacity-100 transition-opacity"
+        data-symbol={symbol}
+        key={symbol}
+      >
+        <span
+          class="w-3 h-3 rounded-full flex-shrink-0"
+          style={`background-color: ${colors[symbol]}`}
+        ></span>
+
+        <span
+          class={
+            symbol === "PORTFOLIO_AVG"
+              ? "font-semibold text-gray-900"
+              : "font-medium text-gray-700"
+          }
+        >
           {symbol === "PORTFOLIO_AVG" ? "Portfolio Avg" : symbol}
         </span>
       </div>
     ))}
   </div>
 </div>
+
+<script client:load>
+  const lines = document.querySelectorAll("path[data-symbol]");
+  const legendItems = document.querySelectorAll(".legend-item");
+
+  legendItems.forEach((item) => {
+    const symbol = item.dataset.symbol;
+
+    item.addEventListener("mouseenter", () => {
+      lines.forEach((line) => {
+        if (line.dataset.symbol === symbol) {
+          line.style.opacity = "1";
+          line.style.strokeWidth = line.classList.contains("portfolio-line")
+            ? "4"
+            : "3";
+        } else {
+          line.style.opacity = "0.1";
+        }
+      });
+    });
+
+    item.addEventListener("mouseleave", () => {
+      lines.forEach((line) => {
+        line.style.opacity = "";
+        line.style.strokeWidth = line.classList.contains("portfolio-line")
+          ? "4"
+          : "2";
+      });
+    });
+  });
+</script>
