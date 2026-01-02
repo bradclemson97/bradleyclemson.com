@@ -25,7 +25,7 @@ npm run preview   # Preview production build
 
 The project follows a component-based architecture with all customization centralized in `src/config.ts`:
 
-- **Components** (`src/components/`): Individual Astro components for each section (Hero, About, Projects, Experience, Education, Header, Footer)
+- **Components** (`src/components/`): Individual Astro components for each section (Hero, About, Projects, Experience, Investments, Header, Footer)
 - **Main Layout** (`src/pages/index.astro`): Single-page layout that imports all components
 - **Configuration** (`src/config.ts`): Single source of truth for all content and customization
 
@@ -61,4 +61,4 @@ The `src/config.ts` exports a `siteConfig` object with these sections:
 - skills: string[]
 - projects: array of {name, description, link, skills}
 - experience: array of {company, title, dateRange, bullets}
-- education: array of {school, degree, dateRange, achievements}
+- investments: array of {school, degree, dateRange, achievements}

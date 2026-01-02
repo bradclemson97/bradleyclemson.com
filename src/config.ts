@@ -76,7 +76,7 @@ export const siteConfig = {
       dateRange: "Sept 2015 - Jun 2019",
     },
   ],
-  education: [
+  investments: [
     {
       school: "Heavily weighted in technology and communications sectors",
       degree: "Long-term Growth Investment Portfolio",

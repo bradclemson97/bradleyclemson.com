@@ -3,8 +3,8 @@ import { siteConfig } from "../config.ts";
 import PortfolioSvgChart from "../components/PortfolioSvgChart.astro";
 import portfolioData from "../data/portfolioMonthly.json";
 
-const education = siteConfig.education ?? [];
-const hasEducation = education.length > 0;
+const investments = siteConfig.investments ?? [];
+const hasInvestments = investments.length > 0;
 
 // === Portfolio stats ===
 const latest = portfolioData.at(-1);
@@ -43,8 +43,8 @@ if (portfolioData.length > 1) {
 
 ---
 
-{hasEducation && (
-<section id="education" class="p-8 sm:p-12 md:p-16 lg:p-24">
+{hasInvestments && (
+<section id="investments" class="p-8 sm:p-12 md:p-16 lg:p-24">
   <div>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
       <div class="lg:col-span-4">
@@ -55,7 +55,7 @@ if (portfolioData.length > 1) {
       </div>
 
       <div class="lg:col-span-8 space-y-8">
-        {education.map((edu, index) => (
+        {investments.map((edu, index) => (
           <div key={index} class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6 hover:shadow-md transition-shadow duration-300">
             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
               <div>
