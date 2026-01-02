@@ -4,15 +4,15 @@ const { data, width = 800, height = 360, padding = 50 } = Astro.props;
 // Auto-detect symbols
 const symbols = Object.keys(data[0] ?? {}).filter((k) => k !== "date");
 
-// Distinct palette (portfolio avg always black)
+// Color palette
 const palette = [
-  "#2563eb", // blue
-  "#16a34a", // green
-  "#9333ea", // purple
-  "#059669", // teal
-  "#f59e0b", // amber
-  "#dc2626", // red
-  "#0ea5e9", // sky
+  "#2563eb",
+  "#16a34a",
+  "#9333ea",
+  "#059669",
+  "#f59e0b",
+  "#dc2626",
+  "#0ea5e9",
 ];
 
 const colors = Object.fromEntries(
@@ -51,9 +51,13 @@ const linePath = (symbol) =>
         `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(d[symbol])}`
     )
     .join(" ");
+
+// Last-point helpers
+const lastIndex = data.length - 1;
+const lastX = xScale(lastIndex);
 ---
 
-<div class="w-full overflow-hidden">
+<div class="w-full overflow-hidden relative">
   <svg
     viewBox={`0 0 ${width} ${height}`}
     preserveAspectRatio="xMidYMid meet"
@@ -69,23 +73,16 @@ const linePath = (symbol) =>
         opacity: 0.8;
         stroke-width: 4;
       }
+
+      .value-badge {
+        display: none;
+        pointer-events: none;
+      }
     </style>
 
     <!-- Axes -->
-    <line
-      x1={padding}
-      y1={padding}
-      x2={padding}
-      y2={height - padding}
-      stroke="#e5e7eb"
-    />
-    <line
-      x1={padding}
-      y1={height - padding}
-      x2={width - padding}
-      y2={height - padding}
-      stroke="#e5e7eb"
-    />
+    <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#e5e7eb" />
+    <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" />
 
     <!-- Y-axis labels + grid -->
     {[minY, (minY + maxY) / 2, maxY].map((v) => (
@@ -122,6 +119,48 @@ const linePath = (symbol) =>
         stroke-width={symbol === "PORTFOLIO_AVG" ? 4 : 2}
       />
     ))}
+
+    <!-- Last value badges -->
+    {symbols.map((symbol) => {
+      const lastValue = Number(data[lastIndex][symbol] ?? 0);
+      const y = yScale(lastValue);
+
+      return (
+        <g
+          class="value-badge"
+          data-symbol={symbol}
+        >
+          <circle
+            cx={lastX}
+            cy={y}
+            r="4"
+            fill={colors[symbol]}
+          />
+
+          <rect
+            x={lastX + 8}
+            y={y - 10}
+            rx="4"
+            ry="4"
+            width="52"
+            height="20"
+            fill="white"
+            stroke="#e5e7eb"
+          />
+
+          <text
+            x={lastX + 34}
+            y={y + 4}
+            text-anchor="middle"
+            font-size="11"
+            fill="#111827"
+            font-weight="600"
+          >
+            {lastValue.toFixed(1)}%
+          </text>
+        </g>
+      );
+    })}
   </svg>
 
   <!-- Legend -->
@@ -153,31 +192,75 @@ const linePath = (symbol) =>
 
 <script client:load>
   const lines = document.querySelectorAll("path[data-symbol]");
+  const badges = document.querySelectorAll(".value-badge");
   const legendItems = document.querySelectorAll(".legend-item");
+
+  let lockedSymbol = null;
+
+  function highlight(symbol) {
+    lines.forEach((line) => {
+      if (line.dataset.symbol === symbol) {
+        line.style.opacity = "1";
+        line.style.strokeWidth = line.classList.contains("portfolio-line")
+          ? "4"
+          : "3";
+      } else {
+        line.style.opacity = "0.1";
+      }
+    });
+
+    badges.forEach((badge) => {
+      badge.style.display =
+        badge.dataset.symbol === symbol ? "block" : "none";
+    });
+  }
+
+  function reset() {
+    lines.forEach((line) => {
+      line.style.opacity = "";
+      line.style.strokeWidth = line.classList.contains("portfolio-line")
+        ? "4"
+        : "2";
+    });
+
+    badges.forEach((badge) => {
+      badge.style.display = "none";
+    });
+  }
 
   legendItems.forEach((item) => {
     const symbol = item.dataset.symbol;
 
+    // Desktop hover
     item.addEventListener("mouseenter", () => {
-      lines.forEach((line) => {
-        if (line.dataset.symbol === symbol) {
-          line.style.opacity = "1";
-          line.style.strokeWidth = line.classList.contains("portfolio-line")
-            ? "4"
-            : "3";
-        } else {
-          line.style.opacity = "0.1";
-        }
-      });
+      if (lockedSymbol) return;
+      highlight(symbol);
     });
 
     item.addEventListener("mouseleave", () => {
-      lines.forEach((line) => {
-        line.style.opacity = "";
-        line.style.strokeWidth = line.classList.contains("portfolio-line")
-          ? "4"
-          : "2";
-      });
+      if (lockedSymbol) return;
+      reset();
     });
+
+    // Mobile touch
+    item.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+
+      if (lockedSymbol === symbol) {
+        lockedSymbol = null;
+        reset();
+      } else {
+        lockedSymbol = symbol;
+        highlight(symbol);
+      }
+    });
+  });
+
+  // Tap outside to clear (mobile)
+  document.addEventListener("touchstart", (e) => {
+    if (!e.target.closest(".legend-item")) {
+      lockedSymbol = null;
+      reset();
+    }
   });
 </script>
