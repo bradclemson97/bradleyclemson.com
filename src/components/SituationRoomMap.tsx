@@ -42,7 +42,6 @@ export default function SituationRoomMap() {
         style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         center: [0, 20],
         zoom: 1.5,
-        projection: "globe",
       });
       map.addControl(new maplibregl.NavigationControl(), "top-right");
       mapInstanceRef.current = map;
