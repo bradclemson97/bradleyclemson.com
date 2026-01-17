@@ -8,19 +8,27 @@ interface CountryData {
   count: number;
 }
 
+interface Article {
+  title: string;
+  url: string;
+  source?: string;
+  date?: string;
+}
+
 const topics = ["protest", "cyber", "election"];
 const timeRanges = ["6h", "24h", "7d"];
 
 export default function SituationRoomMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
-  const popupRef = useRef<maplibregl.Popup | null>(null);
+  const hoverPopupRef = useRef<maplibregl.Popup | null>(null);
+  const clickPopupRef = useRef<maplibregl.Popup | null>(null);
 
   const [topic, setTopic] = useState("protest");
   const [timeRange, setTimeRange] = useState("24h");
   const [loading, setLoading] = useState(false);
 
-  // Initialize MapLibre
+  // Initialize map
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
@@ -34,9 +42,15 @@ export default function SituationRoomMap() {
     map.addControl(new maplibregl.NavigationControl(), "top-right");
     mapInstanceRef.current = map;
 
-    popupRef.current = new maplibregl.Popup({
+    hoverPopupRef.current = new maplibregl.Popup({
       closeButton: false,
       closeOnClick: false,
+    });
+
+    clickPopupRef.current = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: "360px",
     });
   }, []);
 
@@ -54,12 +68,10 @@ export default function SituationRoomMap() {
         const data = await res.json();
         if (!data.countries) return;
 
-        // Top 5 countries
-        const topCountries: CountryData[] = [...data.countries]
-          .sort((a, b) => b.count - a.count)
+        const topCountries = [...data.countries]
+          .sort((a: CountryData, b: CountryData) => b.count - a.count)
           .slice(0, 5);
 
-        // Convert to GeoJSON
         const geojson = {
           type: "FeatureCollection",
           features: topCountries
@@ -78,17 +90,13 @@ export default function SituationRoomMap() {
             .filter(Boolean),
         };
 
-        // Clean up old layer & source (important)
         if (map.getLayer("top-countries-layer")) {
-          map.off("mouseenter", "top-countries-layer", () => {});
-          map.off("mouseleave", "top-countries-layer", () => {});
           map.removeLayer("top-countries-layer");
         }
         if (map.getSource("top-countries")) {
           map.removeSource("top-countries");
         }
 
-        // Add source + layer
         map.addSource("top-countries", {
           type: "geojson",
           data: geojson,
@@ -107,23 +115,16 @@ export default function SituationRoomMap() {
           },
         });
 
-        // Hover popup handlers
+        // Hover popup
         map.on("mouseenter", "top-countries-layer", (e) => {
           map.getCanvas().style.cursor = "pointer";
+          const f = e.features?.[0];
+          if (!f) return;
 
-          const feature = e.features?.[0];
-          if (!feature) return;
+          const { country, count } = f.properties as any;
+          const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-          const { country, count } = feature.properties as {
-            country: string;
-            count: number;
-          };
-
-          const coords = (
-            feature.geometry as GeoJSON.Point
-          ).coordinates.slice();
-
-          popupRef.current!
+          hoverPopupRef.current!
             .setLngLat(coords as [number, number])
             .setHTML(
               `<strong>${country}</strong><br/>${count} ${topic} events (${timeRange})`
@@ -133,10 +134,67 @@ export default function SituationRoomMap() {
 
         map.on("mouseleave", "top-countries-layer", () => {
           map.getCanvas().style.cursor = "";
-          popupRef.current?.remove();
+          hoverPopupRef.current?.remove();
         });
 
-        // Pulsing animation
+        // CLICK → fetch & show news feed
+        map.on("click", "top-countries-layer", async (e) => {
+          const f = e.features?.[0];
+          if (!f) return;
+
+          const { country } = f.properties as any;
+          const coords = (f.geometry as GeoJSON.Point).coordinates;
+
+          clickPopupRef.current!
+            .setLngLat(coords as [number, number])
+            .setHTML(`<div class="text-sm text-neutral-400">Loading news…</div>`)
+            .addTo(map);
+
+          try {
+            const res = await fetch(
+              `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(
+                country
+              )}`
+            );
+            const data = await res.json();
+
+            const articles: Article[] = data.articles || [];
+
+            const html =
+              articles.length === 0
+                ? `<div class="text-sm text-neutral-400">No recent articles</div>`
+                : `
+                  <div style="max-height:220px; overflow:auto;">
+                    ${articles
+                      .slice(0, 10)
+                      .map(
+                        (a) => `
+                          <div style="margin-bottom:8px;">
+                            <a href="${a.url}" target="_blank" rel="noopener noreferrer"
+                               style="color:#f87171; font-weight:600;">
+                              ${a.title}
+                            </a>
+                            <div style="font-size:11px; color:#9ca3af;">
+                              ${a.source ?? ""} ${
+                          a.date ? "• " + new Date(a.date).toLocaleString() : ""
+                        }
+                            </div>
+                          </div>
+                        `
+                      )
+                      .join("")}
+                  </div>
+                `;
+
+            clickPopupRef.current!.setHTML(html);
+          } catch {
+            clickPopupRef.current!.setHTML(
+              `<div class="text-sm text-red-400">Failed to load articles</div>`
+            );
+          }
+        });
+
+        // Pulse animation
         let frame = 0;
         const animate = () => {
           if (!map.getLayer("top-countries-layer")) return;
@@ -152,8 +210,6 @@ export default function SituationRoomMap() {
           requestAnimationFrame(animate);
         };
         animate();
-      } catch (err) {
-        console.error("Failed to fetch GDELT events:", err);
       } finally {
         setLoading(false);
       }
@@ -166,42 +222,29 @@ export default function SituationRoomMap() {
     <div>
       {/* Controls */}
       <div className="flex gap-4 mb-4">
-        <div>
-          <label className="mr-2 font-semibold">Topic:</label>
-          <select
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            className="rounded px-2 py-1 bg-neutral-800 text-white"
-          >
-            {topics.map((t) => (
-              <option key={t} value={t}>
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          className="rounded px-2 py-1 bg-neutral-800 text-white"
+        >
+          {topics.map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
 
-        <div>
-          <label className="mr-2 font-semibold">Time Range:</label>
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="rounded px-2 py-1 bg-neutral-800 text-white"
-          >
-            {timeRanges.map((tr) => (
-              <option key={tr} value={tr}>
-                {tr}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="rounded px-2 py-1 bg-neutral-800 text-white"
+        >
+          {timeRanges.map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
 
-        {loading && (
-          <div className="ml-4 text-red-400 font-semibold">Loading...</div>
-        )}
+        {loading && <div className="text-red-400">Loading…</div>}
       </div>
 
-      {/* Map */}
       <div
         ref={mapRef}
         style={{ height: "600px", width: "100%" }}
