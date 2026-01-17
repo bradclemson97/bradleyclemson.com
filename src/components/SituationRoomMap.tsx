@@ -15,6 +15,7 @@ export default function SituationRoomMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+
   const [topic, setTopic] = useState("protest");
   const [timeRange, setTimeRange] = useState("24h");
   const [loading, setLoading] = useState(false);
@@ -23,14 +24,20 @@ export default function SituationRoomMap() {
   useEffect(() => {
     if (!mapRef.current) return;
 
+    // Add pulse animation keyframes
     if (!document.getElementById("pulse-style")) {
       const styleEl = document.createElement("style");
       styleEl.id = "pulse-style";
       styleEl.innerHTML = `
-        @keyframes pulse {
-          0% { transform: scale(0.8); opacity: 0.6; }
-          50% { transform: scale(1.2); opacity: 1; }
-          100% { transform: scale(0.8); opacity: 0.6; }
+        @keyframes pulse-ring {
+          0% {
+            transform: scale(0.6);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(2.2);
+            opacity: 0;
+          }
         }
       `;
       document.head.appendChild(styleEl);
@@ -43,49 +50,87 @@ export default function SituationRoomMap() {
         center: [0, 20],
         zoom: 1.5,
       });
+
       map.addControl(new maplibregl.NavigationControl(), "top-right");
       mapInstanceRef.current = map;
     }
   }, []);
 
-  // Smooth marker update with debounce
+  // Update markers (top 5 countries only)
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
     const debounceTimeout = setTimeout(async () => {
       setLoading(true);
+
       try {
         const res = await fetch(
           `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}`
         );
         const data = await res.json();
-
         if (!data.countries) return;
 
-        const newMarkers: maplibregl.Marker[] = [];
+        // 🔹 Sort by count DESC and take top 5
+        const topCountries = [...data.countries]
+          .sort((a: CountryData, b: CountryData) => b.count - a.count)
+          .slice(0, 5);
 
-        data.countries.forEach((c: CountryData) => {
+        // 🔹 Remove old markers BEFORE adding new ones
+        markersRef.current.forEach((m) => m.remove());
+        markersRef.current = [];
+
+        topCountries.forEach((c) => {
           const coords = countryCentroids[c.country];
           if (!coords) return;
 
           const size = Math.min(40, 10 + c.count * 2);
           const glow = Math.min(1, c.count / 20);
 
+          // Parent element
           const el = document.createElement("div");
           el.style.width = `${size}px`;
           el.style.height = `${size}px`;
-          el.style.borderRadius = "50%";
-          el.style.background = `rgba(220,38,38,${0.5 + glow * 0.5})`;
-          el.style.border = `2px solid rgba(220,38,38,1)`;
-          el.style.boxShadow = `0 0 ${6 + glow * 20}px rgba(220,38,38,0.7)`;
-          el.style.animation = "pulse 1.5s infinite";
+          el.style.position = "relative";
+          el.style.background = "transparent";
           el.style.cursor = "pointer";
 
-          el.addEventListener("mouseenter", () => (el.style.transform = "scale(1.5)"));
-          el.addEventListener("mouseleave", () => (el.style.transform = "scale(1)"));
+          // Pulsing ring
+          const ring = document.createElement("div");
+          ring.style.position = "absolute";
+          ring.style.top = "50%";
+          ring.style.left = "50%";
+          ring.style.width = "100%";
+          ring.style.height = "100%";
+          ring.style.borderRadius = "50%";
+          ring.style.background = "rgba(220,38,38,0.6)";
+          ring.style.transform = "translate(-50%, -50%)";
+          ring.style.animation = "pulse-ring 1.5s infinite";
 
-          const marker = new maplibregl.Marker(el)
+          // Core dot
+          const core = document.createElement("div");
+          core.style.position = "absolute";
+          core.style.top = "50%";
+          core.style.left = "50%";
+          core.style.width = `${Math.max(6, size / 3)}px`;
+          core.style.height = `${Math.max(6, size / 3)}px`;
+          core.style.borderRadius = "50%";
+          core.style.background = "rgb(220,38,38)";
+          core.style.transform = "translate(-50%, -50%)";
+          core.style.boxShadow = `0 0 ${10 + glow * 20}px rgba(220,38,38,0.9)`;
+
+          el.appendChild(ring);
+          el.appendChild(core);
+
+          el.addEventListener("mouseenter", () => {
+            core.style.transform = "translate(-50%, -50%) scale(1.4)";
+          });
+          el.addEventListener("mouseleave", () => {
+            core.style.transform = "translate(-50%, -50%) scale(1)";
+          });
+
+          // Add marker with the custom element
+          const marker = new maplibregl.Marker({ element: el })
             .setLngLat(coords)
             .setPopup(
               new maplibregl.Popup({ offset: 25 }).setHTML(`
@@ -95,18 +140,14 @@ export default function SituationRoomMap() {
             )
             .addTo(map);
 
-          newMarkers.push(marker);
+          markersRef.current.push(marker);
         });
-
-        // Replace old markers after new ones are ready
-        markersRef.current.forEach((m) => m.remove());
-        markersRef.current = newMarkers;
       } catch (err) {
         console.error("Failed to fetch GDELT events:", err);
       } finally {
         setLoading(false);
       }
-    }, 300); // debounce 300ms
+    }, 300);
 
     return () => clearTimeout(debounceTimeout);
   }, [topic, timeRange]);
