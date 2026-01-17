@@ -18,6 +18,22 @@ interface Article {
 const topics = ["protest", "cyber", "election"];
 const timeRanges = ["6h", "24h", "7d"];
 
+/* ✅ GDELT date parser */
+function parseGdeltDate(seenDate?: string) {
+  if (!seenDate || seenDate.length !== 14) return null;
+
+  const year = seenDate.slice(0, 4);
+  const month = seenDate.slice(4, 6);
+  const day = seenDate.slice(6, 8);
+  const hour = seenDate.slice(8, 10);
+  const minute = seenDate.slice(10, 12);
+  const second = seenDate.slice(12, 14);
+
+  return new Date(
+    `${year}-${month}-${day}T${hour}:${minute}:${second}Z`
+  );
+}
+
 export default function SituationRoomMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
@@ -90,12 +106,8 @@ export default function SituationRoomMap() {
             .filter(Boolean),
         };
 
-        if (map.getLayer("top-countries-layer")) {
-          map.removeLayer("top-countries-layer");
-        }
-        if (map.getSource("top-countries")) {
-          map.removeSource("top-countries");
-        }
+        if (map.getLayer("top-countries-layer")) map.removeLayer("top-countries-layer");
+        if (map.getSource("top-countries")) map.removeSource("top-countries");
 
         map.addSource("top-countries", {
           type: "geojson",
@@ -165,24 +177,24 @@ export default function SituationRoomMap() {
                 ? `<div class="text-sm text-neutral-400">No recent articles</div>`
                 : `
                   <div style="max-height:220px; overflow:auto;">
-                    ${articles
-                      .slice(0, 10)
-                      .map(
-                        (a) => `
-                          <div style="margin-bottom:8px;">
-                            <a href="${a.url}" target="_blank" rel="noopener noreferrer"
-                               style="color:#f87171; font-weight:600;">
-                              ${a.title}
-                            </a>
-                            <div style="font-size:11px; color:#9ca3af;">
-                              ${a.source ?? ""} ${
-                          a.date ? "• " + new Date(a.date).toLocaleString() : ""
-                        }
-                            </div>
+                    ${articles.slice(0, 10).map((a) => {
+                      const parsed = parseGdeltDate(a.date);
+                      const displayDate = parsed
+                        ? parsed.toLocaleString()
+                        : "";
+
+                      return `
+                        <div style="margin-bottom:8px;">
+                          <a href="${a.url}" target="_blank" rel="noopener noreferrer"
+                             style="color:#f87171; font-weight:600;">
+                            ${a.title}
+                          </a>
+                          <div style="font-size:11px; color:#9ca3af;">
+                            ${a.source ?? ""}${displayDate ? " • " + displayDate : ""}
                           </div>
-                        `
-                      )
-                      .join("")}
+                        </div>
+                      `;
+                    }).join("")}
                   </div>
                 `;
 
@@ -220,7 +232,6 @@ export default function SituationRoomMap() {
 
   return (
     <div>
-      {/* Controls */}
       <div className="flex gap-4 mb-4">
         <select
           value={topic}
