@@ -13,8 +13,8 @@ const timeRanges = ["6h", "24h", "7d"];
 
 export default function SituationRoomMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+  const popupRef = useRef<maplibregl.Popup | null>(null);
 
   const [topic, setTopic] = useState("protest");
   const [timeRange, setTimeRange] = useState("24h");
@@ -22,48 +22,31 @@ export default function SituationRoomMap() {
 
   // Initialize MapLibre
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Add pulse animation keyframes
-    if (!document.getElementById("pulse-style")) {
-      const styleEl = document.createElement("style");
-      styleEl.id = "pulse-style";
-      styleEl.innerHTML = `
-        @keyframes pulse-ring {
-          0% {
-            transform: scale(0.6);
-            opacity: 0.8;
-          }
-          100% {
-            transform: scale(2.2);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(styleEl);
-    }
+    const map = new maplibregl.Map({
+      container: mapRef.current,
+      style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+      center: [0, 20],
+      zoom: 1.5,
+    });
 
-    if (!mapInstanceRef.current) {
-      const map = new maplibregl.Map({
-        container: mapRef.current,
-        style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-        center: [0, 20],
-        zoom: 1.5,
-      });
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
+    mapInstanceRef.current = map;
 
-      map.addControl(new maplibregl.NavigationControl(), "top-right");
-      mapInstanceRef.current = map;
-    }
+    popupRef.current = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
   }, []);
 
-  // Update markers (top 5 countries only)
+  // Update top countries layer
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    const debounceTimeout = setTimeout(async () => {
+    const timeout = setTimeout(async () => {
       setLoading(true);
-
       try {
         const res = await fetch(
           `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}`
@@ -71,77 +54,104 @@ export default function SituationRoomMap() {
         const data = await res.json();
         if (!data.countries) return;
 
-        // 🔹 Sort by count DESC and take top 5
-        const topCountries = [...data.countries]
-          .sort((a: CountryData, b: CountryData) => b.count - a.count)
+        // Top 5 countries
+        const topCountries: CountryData[] = [...data.countries]
+          .sort((a, b) => b.count - a.count)
           .slice(0, 5);
 
-        // 🔹 Remove old markers BEFORE adding new ones
-        markersRef.current.forEach((m) => m.remove());
-        markersRef.current = [];
+        // Convert to GeoJSON
+        const geojson = {
+          type: "FeatureCollection",
+          features: topCountries
+            .map((c) => {
+              const coords = countryCentroids[c.country];
+              if (!coords) return null;
+              return {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: coords },
+                properties: {
+                  country: c.country,
+                  count: c.count,
+                },
+              };
+            })
+            .filter(Boolean),
+        };
 
-        topCountries.forEach((c) => {
-          const coords = countryCentroids[c.country];
-          if (!coords) return;
+        // Clean up old layer & source (important)
+        if (map.getLayer("top-countries-layer")) {
+          map.off("mouseenter", "top-countries-layer", () => {});
+          map.off("mouseleave", "top-countries-layer", () => {});
+          map.removeLayer("top-countries-layer");
+        }
+        if (map.getSource("top-countries")) {
+          map.removeSource("top-countries");
+        }
 
-          const size = Math.min(40, 10 + c.count * 2);
-          const glow = Math.min(1, c.count / 20);
+        // Add source + layer
+        map.addSource("top-countries", {
+          type: "geojson",
+          data: geojson,
+        });
 
-          // Parent element
-          const el = document.createElement("div");
-          el.style.width = `${size}px`;
-          el.style.height = `${size}px`;
-          el.style.position = "relative";
-          el.style.background = "transparent";
-          el.style.cursor = "pointer";
+        map.addLayer({
+          id: "top-countries-layer",
+          type: "circle",
+          source: "top-countries",
+          paint: {
+            "circle-radius": ["+", 10, ["*", 1.5, ["get", "count"]]],
+            "circle-color": "rgba(220,38,38,0.6)",
+            "circle-stroke-color": "rgb(220,38,38)",
+            "circle-stroke-width": 2,
+            "circle-opacity": 0.7,
+          },
+        });
 
-          // Pulsing ring
-          const ring = document.createElement("div");
-          ring.style.position = "absolute";
-          ring.style.top = "50%";
-          ring.style.left = "50%";
-          ring.style.width = "100%";
-          ring.style.height = "100%";
-          ring.style.borderRadius = "50%";
-          ring.style.background = "rgba(220,38,38,0.6)";
-          ring.style.transform = "translate(-50%, -50%)";
-          ring.style.animation = "pulse-ring 1.5s infinite";
+        // Hover popup handlers
+        map.on("mouseenter", "top-countries-layer", (e) => {
+          map.getCanvas().style.cursor = "pointer";
 
-          // Core dot
-          const core = document.createElement("div");
-          core.style.position = "absolute";
-          core.style.top = "50%";
-          core.style.left = "50%";
-          core.style.width = `${Math.max(6, size / 3)}px`;
-          core.style.height = `${Math.max(6, size / 3)}px`;
-          core.style.borderRadius = "50%";
-          core.style.background = "rgb(220,38,38)";
-          core.style.transform = "translate(-50%, -50%)";
-          core.style.boxShadow = `0 0 ${10 + glow * 20}px rgba(220,38,38,0.9)`;
+          const feature = e.features?.[0];
+          if (!feature) return;
 
-          el.appendChild(ring);
-          el.appendChild(core);
+          const { country, count } = feature.properties as {
+            country: string;
+            count: number;
+          };
 
-          el.addEventListener("mouseenter", () => {
-            core.style.transform = "translate(-50%, -50%) scale(1.4)";
-          });
-          el.addEventListener("mouseleave", () => {
-            core.style.transform = "translate(-50%, -50%) scale(1)";
-          });
+          const coords = (
+            feature.geometry as GeoJSON.Point
+          ).coordinates.slice();
 
-          // Add marker with the custom element
-          const marker = new maplibregl.Marker({ element: el })
-            .setLngLat(coords)
-            .setPopup(
-              new maplibregl.Popup({ offset: 25 }).setHTML(`
-                <strong>${c.country}</strong><br/>
-                ${c.count} ${topic} events (${timeRange})
-              `)
+          popupRef.current!
+            .setLngLat(coords as [number, number])
+            .setHTML(
+              `<strong>${country}</strong><br/>${count} ${topic} events (${timeRange})`
             )
             .addTo(map);
-
-          markersRef.current.push(marker);
         });
+
+        map.on("mouseleave", "top-countries-layer", () => {
+          map.getCanvas().style.cursor = "";
+          popupRef.current?.remove();
+        });
+
+        // Pulsing animation
+        let frame = 0;
+        const animate = () => {
+          if (!map.getLayer("top-countries-layer")) return;
+          frame += 0.05;
+
+          map.setPaintProperty("top-countries-layer", "circle-radius", [
+            "+",
+            10,
+            ["*", 1.5, ["get", "count"]],
+            ["*", 5, Math.sin(frame)],
+          ]);
+
+          requestAnimationFrame(animate);
+        };
+        animate();
       } catch (err) {
         console.error("Failed to fetch GDELT events:", err);
       } finally {
@@ -149,7 +159,7 @@ export default function SituationRoomMap() {
       }
     }, 300);
 
-    return () => clearTimeout(debounceTimeout);
+    return () => clearTimeout(timeout);
   }, [topic, timeRange]);
 
   return (
