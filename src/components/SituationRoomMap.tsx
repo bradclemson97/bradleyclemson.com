@@ -21,14 +21,12 @@ const timeRanges = ["6h", "24h", "7d"];
 /* ---------------- GDELT date parser ---------------- */
 function parseGdeltDate(seenDate?: string) {
   if (!seenDate || seenDate.length !== 14) return null;
-
   const y = seenDate.slice(0, 4);
   const m = seenDate.slice(4, 6);
   const d = seenDate.slice(6, 8);
   const h = seenDate.slice(8, 10);
   const min = seenDate.slice(10, 12);
   const s = seenDate.slice(12, 14);
-
   return new Date(`${y}-${m}-${d}T${h}:${min}:${s}Z`);
 }
 
@@ -40,12 +38,22 @@ const tensionZones = [
   { name: "Taiwan", status: "amber", coordinates: [121, 23.7] },
 ];
 
-/* 🔑 ALWAYS keyword-based for conflicts */
 const TENSION_QUERIES: Record<string, string> = {
   "Greenland": "Greenland Arctic NATO Russia",
   "Thailand / Cambodia": "Thailand Cambodia border tensions",
   "Ukraine / Russia": "Ukraine Russia war",
   "Taiwan": "Taiwan China military tensions",
+};
+
+/* ---------------- GDELT country normalization ---------------- */
+const COUNTRY_GDELT_MAP: Record<string, string> = {
+  "United States": "United States",
+  "South Korea": "South Korea",
+  "North Korea": "North Korea",
+  "United Kingdom": "United Kingdom",
+  "Czech Republic": "Czech Republic",
+  "New Zealand": "New Zealand",
+  // Add more multi-word countries if needed
 };
 
 export default function SituationRoomMap() {
@@ -110,7 +118,6 @@ export default function SituationRoomMap() {
       map.on("click", "tension-zones-layer", async (e) => {
         const f = e.features?.[0];
         if (!f) return;
-
         const { name, status } = f.properties as any;
         const coords = (f.geometry as GeoJSON.Point).coordinates;
 
@@ -122,11 +129,8 @@ export default function SituationRoomMap() {
         try {
           const keyword = TENSION_QUERIES[name];
           const res = await fetch(
-            `/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(
-              keyword
-            )}`
+            `/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(keyword)}`
           );
-
           const data = await res.json();
           const articles: Article[] = data.articles || [];
 
@@ -214,6 +218,75 @@ export default function SituationRoomMap() {
           },
         });
 
+        // ------------------- Hover popup -------------------
+        map.on("mouseenter", "top-countries-layer", (e) => {
+          map.getCanvas().style.cursor = "pointer";
+          const f = e.features?.[0];
+          if (!f) return;
+          const { country, count } = f.properties as any;
+          const coords = (f.geometry as GeoJSON.Point).coordinates;
+          hoverPopup.current!
+            .setLngLat(coords as [number, number])
+            .setHTML(`<strong>${country}</strong><br/>${count} ${topic} events (${timeRange})`)
+            .addTo(map);
+        });
+
+        map.on("mouseleave", "top-countries-layer", () => {
+          map.getCanvas().style.cursor = "";
+          hoverPopup.current?.remove();
+        });
+
+        // ------------------- Click popup -------------------
+        map.on("click", "top-countries-layer", async (e) => {
+          const f = e.features?.[0];
+          if (!f) return;
+          const { country } = f.properties as any;
+          const coords = (f.geometry as GeoJSON.Point).coordinates;
+
+          // 🔹 normalize multi-word country names
+          const normalizedCountry = COUNTRY_GDELT_MAP[country] || country;
+
+          clickPopup.current!
+            .setLngLat(coords as [number, number])
+            .setHTML(`<div class="text-sm text-neutral-400">Loading news…</div>`)
+            .addTo(map);
+
+          try {
+            const res = await fetch(
+              `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(
+                normalizedCountry
+              )}`
+            );
+            const data = await res.json();
+            const articles: Article[] = data.articles || [];
+
+            clickPopup.current!.setHTML(
+              articles.length === 0
+                ? `<div class="text-sm text-neutral-400">No recent articles</div>`
+                : `
+                  <div style="max-height:220px; overflow:auto;">
+                    ${articles.slice(0, 10).map(a => {
+                      const d = parseGdeltDate(a.date);
+                      return `
+                        <div style="margin-bottom:8px;">
+                          <a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">
+                            ${a.title}
+                          </a>
+                          <div style="font-size:11px;color:#9ca3af;">
+                            ${a.source ?? ""}${d ? " • " + d.toLocaleString() : ""}
+                          </div>
+                        </div>
+                      `;
+                    }).join("")}
+                  </div>
+                `
+            );
+          } catch {
+            clickPopup.current!.setHTML(`<div class="text-sm text-red-400">Failed to load articles</div>`);
+          }
+        });
+
+        // ------------------- Pulse animation -------------------
         let frame = 0;
         const animate = () => {
           if (!map.getLayer("top-countries-layer")) return;
