@@ -5,10 +5,19 @@ export const handler: Handler = async (event) => {
     const topic = event.queryStringParameters?.topic ?? "protest";
     const timespan = event.queryStringParameters?.timespan ?? "24h";
     const countryFilter = event.queryStringParameters?.country;
+    const keyword = event.queryStringParameters?.keyword;
+
+    // 🔹 Build GDELT query
+    let query = topic;
+    if (keyword) {
+      query = keyword;
+    } else if (countryFilter) {
+      query = `sourcecountry:${countryFilter}`;
+    }
 
     const url =
       "https://api.gdeltproject.org/api/v2/doc/doc" +
-      `?query=${encodeURIComponent(topic)}` +
+      `?query=${encodeURIComponent(query)}` +
       `&timespan=${timespan}` +
       "&maxrecords=250" +
       "&format=json";
@@ -29,13 +38,8 @@ export const handler: Handler = async (event) => {
     }
 
     // 🔹 COUNTRY DRILLDOWN MODE
-    if (countryFilter) {
+    if (countryFilter || keyword) {
       const articles = data.articles
-        .filter(
-          (a: any) =>
-            a.sourcecountry &&
-            a.sourcecountry.toLowerCase() === countryFilter.toLowerCase()
-        )
         .slice(0, 20)
         .map((a: any) => ({
           title: a.title,
@@ -46,6 +50,9 @@ export const handler: Handler = async (event) => {
 
       return {
         statusCode: 200,
+        headers: {
+          "Cache-Control": "public, max-age=300",
+        },
         body: JSON.stringify({ articles }),
       };
     }
