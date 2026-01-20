@@ -3,41 +3,18 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { countryCentroids } from "../data/countryCentroids";
 
-interface CountryData {
-  country: string;
-  count: number;
-}
+/* ---------------- NATO (ISO-3) ---------------- */
+const NATO_MEMBERS = [
+  "USA","CAN","GBR","FRA","DEU","ITA","ESP","PRT","NLD","BEL","LUX",
+  "NOR","DNK","ISL","POL","CZE","SVK","HUN","ROU","BGR","HRV","SVN",
+  "ALB","MNE","MKD","GRC","TUR","LTU","LVA","EST","FIN","SWE"
+];
 
-interface Article {
-  title: string;
-  url: string;
-  source?: string;
-  date?: string;
-}
-
-const topics = ["protest", "cyber", "election"];
-const timeRanges = ["6h", "24h", "7d"];
-
-/* ---------------- GDELT date parser ---------------- */
-function parseGdeltDate(seenDate?: string) {
-  if (!seenDate || seenDate.length !== 14) return null;
-  const y = seenDate.slice(0, 4);
-  const m = seenDate.slice(4, 6);
-  const d = seenDate.slice(6, 8);
-  const h = seenDate.slice(8, 10);
-  const min = seenDate.slice(10, 12);
-  const s = seenDate.slice(12, 14);
-  return new Date(`${y}-${m}-${d}T${h}:${min}:${s}Z`);
-}
-
-/* ---------------- Tension / Conflict Zones ---------------- */
+/* ---------------- Tension Zones ---------------- */
 const tensionZones = [
-  // 🔴 Active conflicts
   { name: "Sudan civil war", status: "red", coordinates: [30, 15] },
   { name: "Syrian civil war", status: "red", coordinates: [38, 35] },
   { name: "Ukraine / Russia", status: "red", coordinates: [36, 49] },
-
-  // 🟡 Heightened tensions
   { name: "India / Pakistan", status: "amber", coordinates: [74, 32] },
   { name: "Israel / Gaza", status: "amber", coordinates: [34.8, 31.5] },
   { name: "Greenland", status: "amber", coordinates: [-42, 72] },
@@ -45,293 +22,237 @@ const tensionZones = [
   { name: "Taiwan", status: "amber", coordinates: [121, 23.7] },
 ];
 
+interface CountryData { country: string; count: number; }
+interface Article { title: string; url: string; source?: string; date?: string; }
 
-const TENSION_QUERIES: Record<string, string> = {
-  "Greenland": "Greenland Arctic NATO Russia",
-  "Thailand / Cambodia": "Thailand Cambodia border tensions",
-  "Ukraine / Russia": "Ukraine Russia war",
-  "Taiwan": "Taiwan China military tensions",
-  "Sudan civil war": "Sudan civil war RSF SAF",
-  "Syrian civil war": "Syria civil war Assad rebels",
-  "India / Pakistan": "India Pakistan border tensions Kashmir",
-  "Israel / Gaza": "Israel Gaza conflict Hamas",
-};
+const topics = ["protest", "cyber", "election"];
+const timeRanges = ["6h", "24h", "7d"];
 
+/* ---------------- GDELT date parser ---------------- */
+function parseGdeltDate(seenDate?: string) {
+  if(!seenDate || seenDate.length!==14) return null;
+  const y=seenDate.slice(0,4), m=seenDate.slice(4,6), d=seenDate.slice(6,8);
+  const h=seenDate.slice(8,10), min=seenDate.slice(10,12), s=seenDate.slice(12,14);
+  return new Date(`${y}-${m}-${d}T${h}:${min}:${s}Z`);
+}
+
+/* ---------------- Component ---------------- */
 export default function SituationRoomMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapRefInstance = useRef<maplibregl.Map | null>(null);
-  const hoverPopup = useRef<maplibregl.Popup | null>(null);
-  const clickPopup = useRef<maplibregl.Popup | null>(null);
+  const mapRefInstance = useRef<maplibregl.Map|null>(null);
+  const clickPopup = useRef<maplibregl.Popup|null>(null);
 
-  const [topic, setTopic] = useState("protest");
-  const [timeRange, setTimeRange] = useState("24h");
-  const [loading, setLoading] = useState(false);
+  const [topic,setTopic] = useState("protest");
+  const [timeRange,setTimeRange] = useState("24h");
+  const [loading,setLoading] = useState(false);
+  const [showNato, setShowNato] = useState(true);
 
-  /* ---------------- Init map ---------------- */
-  useEffect(() => {
-    if (!mapRef.current || mapRefInstance.current) return;
+  useEffect(()=>{
+    if(!mapRef.current || mapRefInstance.current) return;
 
     const map = new maplibregl.Map({
       container: mapRef.current,
-      style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-      center: [0, 20],
-      zoom: 1.5,
+      style:"https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+      center:[0,20],
+      zoom:1.5
     });
 
     map.addControl(new maplibregl.NavigationControl(), "top-right");
     mapRefInstance.current = map;
 
-    hoverPopup.current = new maplibregl.Popup({ closeButton: false });
-    clickPopup.current = new maplibregl.Popup({ maxWidth: "360px" });
+    clickPopup.current = new maplibregl.Popup({ maxWidth:"360px" });
 
-    map.on("load", () => {
-      /* ---------- Static tension zones ---------- */
-      map.addSource("tension-zones", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: tensionZones.map((z) => ({
-            type: "Feature",
-            geometry: { type: "Point", coordinates: z.coordinates },
-            properties: z,
-          })),
-        },
+    map.on("load", ()=>{
+
+      /* ---------- Countries source ---------- */
+      map.addSource("countries", {
+        type:"geojson",
+        data:"https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson"
       });
+
+      /* ---------- Add NATO borders layer after source loaded ---------- */
+      const addNatoLayer = () => {
+        if(!map.getSource("countries")) return;
+        if(!map.getLayer("nato-borders")){
+
+          map.addLayer({
+            id: "nato-borders",
+            type: "line",
+            source: "countries",
+            paint: {
+              "line-color": "#3b82f6",
+              "line-width": 3
+            },
+            filter: [
+              "in",
+              ["get", "ISO3166-1-Alpha-3"],
+              ["literal", NATO_MEMBERS]
+            ]
+          });
+
+
+        }
+      };
+      setTimeout(addNatoLayer, 500);
+
+      /* ---------- Tension zones layer ---------- */
+      const tensionGeo = {
+        type:"FeatureCollection",
+        features:tensionZones.map(z=>({
+          type:"Feature",
+          geometry:{ type:"Point", coordinates:z.coordinates },
+          properties:z
+        }))
+      };
+
+      map.addSource("tension-zones",{ type:"geojson", data:tensionGeo });
 
       map.addLayer({
-        id: "tension-zones-layer",
-        type: "circle",
-        source: "tension-zones",
-        paint: {
-          "circle-radius": 7,
-          "circle-color": [
-            "match",
-            ["get", "status"],
-            "red", "#dc2626",
-            "amber", "#f59e0b",
-            "#6b7280",
-          ],
-          "circle-stroke-color": "#000",
-          "circle-stroke-width": 1.5,
-        },
+        id:"tension-zones-layer",
+        type:"circle",
+        source:"tension-zones",
+        paint:{
+          "circle-radius":7,
+          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","#6b7280"],
+          "circle-stroke-color":"#000",
+          "circle-stroke-width":1.5
+        }
       });
 
-      map.on("click", "tension-zones-layer", async (e) => {
-        const f = e.features?.[0];
-        if (!f) return;
-        const { name, status } = f.properties as any;
+      /* ---------- Tension zones click ---------- */
+      map.on("click","tension-zones-layer", async (e)=>{
+        const f = e.features?.[0]; if(!f) return;
+        const {name,status} = f.properties as any;
         const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-        clickPopup.current!
-          .setLngLat(coords as [number, number])
+        clickPopup.current!.setLngLat(coords as [number,number])
           .setHTML(`<div class="text-neutral-400">Loading ${name}…</div>`)
           .addTo(map);
 
-        try {
-          const keyword = TENSION_QUERIES[name];
-          const res = await fetch(
-            `/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(keyword)}`
-          );
+        try{
+          const res = await fetch(`/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(name)}`);
           const data = await res.json();
-          const articles: Article[] = data.articles || [];
+          const articles:Article[] = data.articles||[];
 
           clickPopup.current!.setHTML(
-            articles.length === 0
-              ? `<div class="text-neutral-400">No recent articles</div>`
-              : `
-                <strong>${name}</strong>
-                <div style="font-size:12px; margin-bottom:6px;">
-                  ${status === "red" ? "🔴 Active Conflict" : "🟠 Heightened Tensions"}
-                </div>
-                <div style="max-height:220px; overflow:auto;">
-                  ${articles.slice(0, 8).map(a => {
-                    const d = parseGdeltDate(a.date);
-                    return `
-                      <div style="margin-bottom:8px;">
-                        <a href="${a.url}" target="_blank"
-                           style="color:#f87171;font-weight:600;">
-                          ${a.title}
-                        </a>
-                        <div style="font-size:11px;color:#9ca3af;">
-                          ${a.source ?? ""}${d ? " • " + d.toLocaleString() : ""}
-                        </div>
-                      </div>
-                    `;
-                  }).join("")}
-                </div>
-              `
+            articles.length===0
+            ? `<div class="text-neutral-400">No recent articles</div>`
+            : `<strong>${name}</strong><div style="font-size:12px;margin-bottom:6px;">${status==="red"?"🔴 Active Conflict":"🟠 Heightened Tensions"}</div><div style="max-height:220px;overflow:auto;">${articles.slice(0,8).map(a=>{ const d=parseGdeltDate(a.date); return `<div style="margin-bottom:8px;"><a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">${a.title}</a><div style="font-size:11px;color:#9ca3af;">${a.source??""}${d?" • "+d.toLocaleString():""}</div></div>`; }).join("")}</div>`
           );
-        } catch {
-          clickPopup.current!.setHTML(
-            `<div class="text-red-400">Failed to load updates</div>`
-          );
+        }catch{
+          clickPopup.current!.setHTML(`<div class="text-red-400">Failed to load updates</div>`);
         }
       });
+
     });
-  }, []);
+  },[]);
+
+  /* ---------------- NATO toggle ---------------- */
+  useEffect(()=>{
+    const map = mapRefInstance.current;
+    if(!map || !map.getLayer("nato-borders")) return;
+    map.setLayoutProperty("nato-borders","visibility",showNato?"visible":"none");
+  },[showNato]);
 
   /* ---------------- GDELT pulse layer ---------------- */
-  useEffect(() => {
+  useEffect(()=>{
     const map = mapRefInstance.current;
-    if (!map) return;
+    if(!map) return;
 
-    const t = setTimeout(async () => {
+    const t = setTimeout(async ()=>{
       setLoading(true);
-      try {
-        const res = await fetch(
-          `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}`
-        );
+      try{
+        const res = await fetch(`/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}`);
         const data = await res.json();
-        if (!data.countries) return;
+        if(!data.countries) return;
 
-        const top = [...data.countries]
-          .sort((a: CountryData, b: CountryData) => b.count - a.count)
-          .slice(0, 5);
+        const top = [...data.countries].sort((a:CountryData,b:CountryData)=>b.count-a.count).slice(0,5);
+        const geojson = { type:"FeatureCollection", features: top.map(c=>{
+          const coords = countryCentroids[c.country];
+          if(!coords) return null;
+          return { type:"Feature", geometry:{ type:"Point", coordinates:coords }, properties:c };
+        }).filter(Boolean)};
 
-        const geojson = {
-          type: "FeatureCollection",
-          features: top
-            .map(c => {
-              const coords = countryCentroids[c.country];
-              if (!coords) return null;
-              return {
-                type: "Feature",
-                geometry: { type: "Point", coordinates: coords },
-                properties: c,
-              };
-            })
-            .filter(Boolean),
-        };
+        if(map.getLayer("top-countries-layer")) map.removeLayer("top-countries-layer");
+        if(map.getSource("top-countries")) map.removeSource("top-countries");
 
-        if (map.getLayer("top-countries-layer")) map.removeLayer("top-countries-layer");
-        if (map.getSource("top-countries")) map.removeSource("top-countries");
+        map.addSource("top-countries",{ type:"geojson", data:geojson });
 
-        map.addSource("top-countries", { type: "geojson", data: geojson });
         map.addLayer({
-          id: "top-countries-layer",
-          type: "circle",
-          source: "top-countries",
-          paint: {
-            "circle-radius": [
-              "+",
-              3, // tiny base
-              ["min", 4, ["*", 0.25, ["get", "count"]]], // cap growth
-            ],
-            "circle-color": "rgba(255,255,255,0.7)", // white pulses
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 1.5,
-          },
+          id:"top-countries-layer",
+          type:"circle",
+          source:"top-countries",
+          paint:{
+            "circle-radius":["+",3,["min",4,["*",0.25,["get","count"]]]],
+            "circle-color":"rgba(255,255,255,0.7)",
+            "circle-stroke-color":"#ffffff",
+            "circle-stroke-width":1.5
+          }
         });
 
-        // ------------------- Hover popup -------------------
-        map.on("mouseenter", "top-countries-layer", (e) => {
-          map.getCanvas().style.cursor = "pointer";
-          const f = e.features?.[0];
-          if (!f) return;
-          const { country, count } = f.properties as any;
-          const coords = (f.geometry as GeoJSON.Point).coordinates;
-          hoverPopup.current!
-            .setLngLat(coords as [number, number])
-            .setHTML(`<strong>${country}</strong><br/>${count} ${topic} events (${timeRange})`)
-            .addTo(map);
-        });
+        map.on("mouseenter","top-countries-layer",()=>map.getCanvas().style.cursor="pointer");
+        map.on("mouseleave","top-countries-layer",()=>map.getCanvas().style.cursor="");
 
-        map.on("mouseleave", "top-countries-layer", () => {
-          map.getCanvas().style.cursor = "";
-          hoverPopup.current?.remove();
-        });
-
-        // ------------------- Click popup -------------------
-        map.on("click", "top-countries-layer", async (e) => {
-          const f = e.features?.[0];
-          if (!f) return;
-          const { country } = f.properties as any;
+        map.on("click","top-countries-layer",async(e)=>{
+          const f = e.features?.[0]; if(!f) return;
+          const {country} = f.properties as any;
           const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-          clickPopup.current!
-            .setLngLat(coords as [number, number])
+          clickPopup.current!.setLngLat(coords as [number,number])
             .setHTML(`<div class="text-sm text-neutral-400">Loading news…</div>`)
             .addTo(map);
 
-          try {
-            const res = await fetch(
-              `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(
-                country
-              )}`
-            );
+          try{
+            const res = await fetch(`/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(country)}`);
             const data = await res.json();
-            const articles: Article[] = data.articles || [];
-
+            const articles:Article[] = data.articles||[];
             clickPopup.current!.setHTML(
-              articles.length === 0
-                ? `<div class="text-sm text-neutral-400">No recent articles</div>`
-                : `
-                  <div style="max-height:220px; overflow:auto;">
-                    ${articles.slice(0, 10).map(a => {
-                      const d = parseGdeltDate(a.date);
-                      return `
-                        <div style="margin-bottom:8px;">
-                          <a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">
-                            ${a.title}
-                          </a>
-                          <div style="font-size:11px;color:#9ca3af;">
-                            ${a.source ?? ""}${d ? " • " + d.toLocaleString() : ""}
-                          </div>
-                        </div>
-                      `;
-                    }).join("")}
-                  </div>
-                `
+              articles.slice(0,8).map(a=>{
+                const d=parseGdeltDate(a.date);
+                return `<div style="margin-bottom:8px;"><a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">${a.title}</a><div style="font-size:11px;color:#9ca3af;">${a.source??""}${d?" • "+d.toLocaleString():""}</div></div>`;
+              }).join("")
             );
-          } catch {
+          }catch{
             clickPopup.current!.setHTML(`<div class="text-sm text-red-400">Failed to load articles</div>`);
           }
         });
 
-        // ------------------- Pulse animation -------------------
-        let frame = 0;
-        const animate = () => {
-          if (!map.getLayer("top-countries-layer")) return;
-
-          frame += 0.04;
-
-          map.setPaintProperty("top-countries-layer", "circle-radius", [
-            "+",
-            3, // tiny base
-            ["min", 4, ["*", 0.25, ["get", "count"]]], // capped size
-            ["*", 1.5, Math.sin(frame)], // very subtle pulse
-          ]);
-
+        /* ---------- Pulse animation ---------- */
+        let frame=0;
+        const animate=()=>{
+          if(!map.getLayer("top-countries-layer")) return;
+          frame+=0.04;
+          map.setPaintProperty("top-countries-layer","circle-radius",["+",3,["min",4,["*",0.25,["get","count"]]],["*",1.5,Math.sin(frame)]]);
           requestAnimationFrame(animate);
         };
         animate();
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
 
-    return () => clearTimeout(t);
-  }, [topic, timeRange]);
+      }finally{ setLoading(false); }
+    },300);
+
+    return ()=>clearTimeout(t);
+  },[topic,timeRange]);
 
   return (
     <div>
-      <div className="flex gap-4 mb-4">
-        <select value={topic} onChange={e => setTopic(e.target.value)}
-          className="bg-neutral-800 text-white rounded px-2 py-1">
-          {topics.map(t => <option key={t}>{t}</option>)}
+      <div className="flex gap-4 mb-4 items-center">
+        <select value={topic} onChange={e=>setTopic(e.target.value)} className="bg-neutral-800 text-white rounded px-2 py-1">
+          {topics.map(t=><option key={t}>{t}</option>)}
         </select>
 
-        <select value={timeRange} onChange={e => setTimeRange(e.target.value)}
-          className="bg-neutral-800 text-white rounded px-2 py-1">
-          {timeRanges.map(t => <option key={t}>{t}</option>)}
+        <select value={timeRange} onChange={e=>setTimeRange(e.target.value)} className="bg-neutral-800 text-white rounded px-2 py-1">
+          {timeRanges.map(t=><option key={t}>{t}</option>)}
         </select>
+
+        <label className="flex items-center gap-2 text-sm text-blue-400">
+          <input type="checkbox" checked={showNato} onChange={e=>setShowNato(e.target.checked)} className="accent-blue-500"/>
+          NATO
+        </label>
 
         {loading && <div className="text-red-400">Loading…</div>}
       </div>
 
-      <div ref={mapRef}
-        className="rounded-xl shadow-2xl border border-neutral-800"
-        style={{ height: "600px", width: "100%" }} />
+      <div ref={mapRef} className="rounded-xl shadow-2xl border border-neutral-800" style={{height:"600px", width:"100%"}}/>
     </div>
   );
 }
