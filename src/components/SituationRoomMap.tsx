@@ -45,15 +45,18 @@ const TENSION_QUERIES: Record<string, string> = {
   "Taiwan": "Taiwan China military tensions",
 };
 
-/* ---------------- Multi-word country normalization ---------------- */
+/* ---------------- Multi-word country → ISO mapping ---------------- */
 const COUNTRY_GDELT_MAP: Record<string, string> = {
-  "United States": "United States",
-  "South Korea": "South Korea",
-  "North Korea": "North Korea",
-  "United Kingdom": "United Kingdom",
-  "Czech Republic": "Czech Republic",
-  "New Zealand": "New Zealand",
-  // Add more if needed
+  "United States": "US",
+  "South Korea": "KR",
+  "North Korea": "KP",
+  "United Kingdom": "GB",
+  "Czech Republic": "CZ",
+  "New Zealand": "NZ",
+  "Saudi Arabia": "SA",
+  "Hong Kong": "HK",
+  "Taiwan": "TW",
+  "Dominican Republic": "DO",
 };
 
 export default function SituationRoomMap() {
@@ -243,6 +246,7 @@ export default function SituationRoomMap() {
           const { country } = f.properties as any;
           const coords = (f.geometry as GeoJSON.Point).coordinates;
 
+          // 🔹 normalize multi-word country names → ISO code
           const normalizedCountry = COUNTRY_GDELT_MAP[country] || country;
 
           clickPopup.current!
