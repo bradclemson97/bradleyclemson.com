@@ -1,18 +1,62 @@
 import type { Handler } from "@netlify/functions";
 
-/* ---------------- Multi-word country → ISO mapping ---------------- */
+// Mapping full country names → ISO codes
 const COUNTRY_CODES: Record<string, string> = {
   "United States": "US",
   "South Korea": "KR",
-  "North Korea": "KP",
+  "India": "IN",
+  "Turkey": "TR",
+  "Indonesia": "ID",
+  "Italy": "IT",
+  "Nigeria": "NG",
+  "China": "CN",
+  "Brazil": "BR",
+  "Algeria": "DZ",
+  "Vietnam": "VN",
+  "Serbia": "RS",
   "United Kingdom": "GB",
-  "Czech Republic": "CZ",
-  "New Zealand": "NZ",
-  "Saudi Arabia": "SA",
+  "Cyprus": "CY",
+  "Bulgaria": "BG",
+  "Australia": "AU",
+  "Sri Lanka": "LK",
+  "Peru": "PE",
+  "Thailand": "TH",
+  "Russia": "RU",
+  "Pakistan": "PK",
+  "Bolivia": "BO",
   "Hong Kong": "HK",
+  "Malaysia": "MY",
+  "Macedonia": "MK",
+  "Slovenia": "SI",
+  "Israel": "IL",
+  "Spain": "ES",
+  "Liberia": "LR",
+  "Romania": "RO",
+  "Albania": "AL",
+  "Greece": "GR",
+  "Kosovo": "XK",
+  "Austria": "AT",
   "Taiwan": "TW",
+  "Mexico": "MX",
+  "Japan": "JP",
   "Dominican Republic": "DO",
+  "Colombia": "CO",
+  "Egypt": "EG",
+  "Switzerland": "CH",
+  "Sweden": "SE",
+  "Bangladesh": "BD",
+  "Germany": "DE",
+  "Greenland": "GL",
+  "Cambodia": "KH",
+  "Ukraine": "UA",
+  "Thailand / Cambodia": "TH,KH",
+  "Ukraine / Russia": "UA,RU",
 };
+
+// Reverse mapping ISO code → country name
+const COUNTRY_CODES_REVERSE: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_CODES).map(([name, code]) => [code, name])
+);
 
 export const handler: Handler = async (event) => {
   try {
@@ -27,11 +71,10 @@ export const handler: Handler = async (event) => {
     if (keyword) {
       query = keyword;
     } else if (countryFilter) {
-      const trimmed = countryFilter.trim();
-
-      // multi-word country → use ISO if available
-      const iso = COUNTRY_CODES[trimmed];
-      query = iso ? `sourcecountry:${iso}` : trimmed;
+      // If input is ISO code, map to full country name
+      const normalizedCountry =
+        COUNTRY_CODES_REVERSE[countryFilter.toUpperCase()] || countryFilter;
+      query = normalizedCountry;
     }
 
     const url =
