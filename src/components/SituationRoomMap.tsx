@@ -45,20 +45,6 @@ const TENSION_QUERIES: Record<string, string> = {
   "Taiwan": "Taiwan China military tensions",
 };
 
-/* ---------------- Multi-word country → ISO mapping ---------------- */
-const COUNTRY_GDELT_MAP: Record<string, string> = {
-  "United States": "US",
-  "South Korea": "KR",
-  "North Korea": "KP",
-  "United Kingdom": "GB",
-  "Czech Republic": "CZ",
-  "New Zealand": "NZ",
-  "Saudi Arabia": "SA",
-  "Hong Kong": "HK",
-  "Taiwan": "TW",
-  "Dominican Republic": "DO",
-};
-
 export default function SituationRoomMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapRefInstance = useRef<maplibregl.Map | null>(null);
@@ -246,9 +232,6 @@ export default function SituationRoomMap() {
           const { country } = f.properties as any;
           const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-          // 🔹 normalize multi-word country names → ISO code
-          const normalizedCountry = COUNTRY_GDELT_MAP[country] || country;
-
           clickPopup.current!
             .setLngLat(coords as [number, number])
             .setHTML(`<div class="text-sm text-neutral-400">Loading news…</div>`)
@@ -257,7 +240,7 @@ export default function SituationRoomMap() {
           try {
             const res = await fetch(
               `/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(
-                normalizedCountry
+                country
               )}`
             );
             const data = await res.json();
