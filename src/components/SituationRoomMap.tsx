@@ -32,17 +32,29 @@ function parseGdeltDate(seenDate?: string) {
 
 /* ---------------- Tension / Conflict Zones ---------------- */
 const tensionZones = [
+  // 🔴 Active conflicts
+  { name: "Sudan civil war", status: "red", coordinates: [30, 15] },
+  { name: "Syrian civil war", status: "red", coordinates: [38, 35] },
+  { name: "Ukraine / Russia", status: "red", coordinates: [36, 49] },
+
+  // 🟡 Heightened tensions
+  { name: "India / Pakistan", status: "amber", coordinates: [74, 32] },
+  { name: "Israel / Gaza", status: "amber", coordinates: [34.8, 31.5] },
   { name: "Greenland", status: "amber", coordinates: [-42, 72] },
   { name: "Thailand / Cambodia", status: "amber", coordinates: [102.5, 14.5] },
-  { name: "Ukraine / Russia", status: "red", coordinates: [36, 49] },
   { name: "Taiwan", status: "amber", coordinates: [121, 23.7] },
 ];
+
 
 const TENSION_QUERIES: Record<string, string> = {
   "Greenland": "Greenland Arctic NATO Russia",
   "Thailand / Cambodia": "Thailand Cambodia border tensions",
   "Ukraine / Russia": "Ukraine Russia war",
   "Taiwan": "Taiwan China military tensions",
+  "Sudan civil war": "Sudan civil war RSF SAF",
+  "Syrian civil war": "Syria civil war Assad rebels",
+  "India / Pakistan": "India Pakistan border tensions Kashmir",
+  "Israel / Gaza": "Israel Gaza conflict Hamas",
 };
 
 export default function SituationRoomMap() {
@@ -200,10 +212,14 @@ export default function SituationRoomMap() {
           type: "circle",
           source: "top-countries",
           paint: {
-            "circle-radius": ["+", 10, ["*", 1.5, ["get", "count"]]],
-            "circle-color": "rgba(220,38,38,0.6)",
-            "circle-stroke-color": "#dc2626",
-            "circle-stroke-width": 2,
+            "circle-radius": [
+              "+",
+              3, // tiny base
+              ["min", 4, ["*", 0.25, ["get", "count"]]], // cap growth
+            ],
+            "circle-color": "rgba(255,255,255,0.7)", // white pulses
+            "circle-stroke-color": "#ffffff",
+            "circle-stroke-width": 1.5,
           },
         });
 
@@ -276,13 +292,16 @@ export default function SituationRoomMap() {
         let frame = 0;
         const animate = () => {
           if (!map.getLayer("top-countries-layer")) return;
-          frame += 0.05;
+
+          frame += 0.04;
+
           map.setPaintProperty("top-countries-layer", "circle-radius", [
             "+",
-            10,
-            ["*", 1.5, ["get", "count"]],
-            ["*", 5, Math.sin(frame)],
+            3, // tiny base
+            ["min", 4, ["*", 0.25, ["get", "count"]]], // capped size
+            ["*", 1.5, Math.sin(frame)], // very subtle pulse
           ]);
+
           requestAnimationFrame(animate);
         };
         animate();
