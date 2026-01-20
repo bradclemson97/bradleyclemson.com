@@ -1,62 +1,63 @@
 import type { Handler } from "@netlify/functions";
 
+/* ---------------- Country name mapping ---------------- */
 const COUNTRY_CODES: Record<string, string> = {
-  "United States": "US",
-  "South Korea": "KR",
-  "India": "IN",
-  "Turkey": "TR",
-  "Indonesia": "ID",
-  "Italy": "IT",
-  "Nigeria": "NG",
-  "China": "CN",
-  "Brazil": "BR",
-  "Algeria": "DZ",
-  "Vietnam": "VN",
-  "Serbia": "RS",
-  "United Kingdom": "GB",
-  "Cyprus": "CY",
-  "Bulgaria": "BG",
-  "Australia": "AU",
-  "Sri Lanka": "LK",
-  "Peru": "PE",
-  "Thailand": "TH",
-  "Russia": "RU",
-  "Pakistan": "PK",
-  "Bolivia": "BO",
-  "Hong Kong": "HK",
-  "Malaysia": "MY",
-  "Macedonia": "MK",
-  "Slovenia": "SI",
-  "Israel": "IL",
-  "Spain": "ES",
-  "Liberia": "LR",
-  "Romania": "RO",
-  "Albania": "AL",
-  "Greece": "GR",
-  "Kosovo": "XK",
-  "Austria": "AT",
-  "Taiwan": "TW",
-  "Mexico": "MX",
-  "Japan": "JP",
-  "Dominican Republic": "DO",
-  "Colombia": "CO",
-  "Egypt": "EG",
-  "Switzerland": "CH",
-  "Sweden": "SE",
-  "Bangladesh": "BD",
-  "Germany": "DE",
-  "Greenland": "GL",
-  "Cambodia": "KH",
-  "Ukraine": "UA",
-  "Thailand / Cambodia": "TH,KH",
-  "Ukraine / Russia": "UA,RU",
+  "united states": "United States",
+  "south korea": "South Korea",
+  "india": "India",
+  "turkey": "Turkey",
+  "indonesia": "Indonesia",
+  "italy": "Italy",
+  "nigeria": "Nigeria",
+  "china": "China",
+  "brazil": "Brazil",
+  "algeria": "Algeria",
+  "vietnam": "Vietnam",
+  "serbia": "Serbia",
+  "united kingdom": "United Kingdom",
+  "cyprus": "Cyprus",
+  "bulgaria": "Bulgaria",
+  "australia": "Australia",
+  "sri lanka": "Sri Lanka",
+  "peru": "Peru",
+  "thailand": "Thailand",
+  "russia": "Russia",
+  "pakistan": "Pakistan",
+  "bolivia": "Bolivia",
+  "hong kong": "Hong Kong",
+  "malaysia": "Malaysia",
+  "macedonia": "Macedonia",
+  "slovenia": "Slovenia",
+  "israel": "Israel",
+  "spain": "Spain",
+  "liberia": "Liberia",
+  "romania": "Romania",
+  "albania": "Albania",
+  "greece": "Greece",
+  "kosovo": "Kosovo",
+  "austria": "Austria",
+  "taiwan": "Taiwan",
+  "mexico": "Mexico",
+  "japan": "Japan",
+  "dominican republic": "Dominican Republic",
+  "colombia": "Colombia",
+  "egypt": "Egypt",
+  "switzerland": "Switzerland",
+  "sweden": "Sweden",
+  "bangladesh": "Bangladesh",
+  "germany": "Germany",
+  "greenland": "Greenland",
+  "cambodia": "Cambodia",
+  "ukraine": "Ukraine",
+  "thailand / cambodia": "Thailand Cambodia",
+  "ukraine / russia": "Ukraine Russia",
 };
 
 export const handler: Handler = async (event) => {
   try {
     const topic = event.queryStringParameters?.topic ?? "protest";
     const timespan = event.queryStringParameters?.timespan ?? "24h";
-    const countryFilter = event.queryStringParameters?.country;
+    const countryFilterRaw = event.queryStringParameters?.country;
     const keyword = event.queryStringParameters?.keyword;
 
     // ---------------- Build GDELT query ----------------
@@ -64,9 +65,11 @@ export const handler: Handler = async (event) => {
 
     if (keyword) {
       query = keyword;
-    } else if (countryFilter) {
-      const code = COUNTRY_CODES[countryFilter];
-      query = code ? `sourcecountry:${code}` : countryFilter;
+    } else if (countryFilterRaw) {
+      // normalize to lowercase
+      const key = countryFilterRaw.toLowerCase().trim();
+      const name = COUNTRY_CODES[key] ?? countryFilterRaw;
+      query = `sourcecountry:${name}`;
     }
 
     const url =
@@ -93,7 +96,7 @@ export const handler: Handler = async (event) => {
     }
 
     // ---------------- COUNTRY DRILLDOWN MODE ----------------
-    if (countryFilter || keyword) {
+    if (countryFilterRaw || keyword) {
       const articles = data.articles.slice(0, 20).map((a: any) => ({
         title: a.title,
         url: a.url,

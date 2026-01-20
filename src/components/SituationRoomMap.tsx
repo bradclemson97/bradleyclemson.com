@@ -45,7 +45,7 @@ const TENSION_QUERIES: Record<string, string> = {
   "Taiwan": "Taiwan China military tensions",
 };
 
-/* ---------------- GDELT country normalization ---------------- */
+/* ---------------- Multi-word country normalization ---------------- */
 const COUNTRY_GDELT_MAP: Record<string, string> = {
   "United States": "United States",
   "South Korea": "South Korea",
@@ -53,7 +53,7 @@ const COUNTRY_GDELT_MAP: Record<string, string> = {
   "United Kingdom": "United Kingdom",
   "Czech Republic": "Czech Republic",
   "New Zealand": "New Zealand",
-  // Add more multi-word countries if needed
+  // Add more if needed
 };
 
 export default function SituationRoomMap() {
@@ -243,7 +243,6 @@ export default function SituationRoomMap() {
           const { country } = f.properties as any;
           const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-          // 🔹 normalize multi-word country names
           const normalizedCountry = COUNTRY_GDELT_MAP[country] || country;
 
           clickPopup.current!
