@@ -148,6 +148,42 @@ export default function SituationRoomMap() {
     requestAnimationFrame(() => map.resize());
   },[]);
 
+/* ---------------- Resize for mobile  ---------------- */
+    useEffect(() => {
+      const map = mapRefInstance.current;
+      const container = mapRef.current;
+      if (!map || !container) return;
+
+      const observer = new ResizeObserver(() => {
+        map.resize();
+      });
+
+      observer.observe(container);
+
+      return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+      const map = mapRefInstance.current;
+      if (!map) return;
+
+      if (map.getLayer("nato-borders")) {
+        map.setLayoutProperty(
+          "nato-borders",
+          "visibility",
+          showNato ? "visible" : "none"
+        );
+      }
+      if (map.getLayer("nato-borders-glow")) {
+        map.setLayoutProperty(
+          "nato-borders-glow",
+          "visibility",
+          showNato ? "visible" : "none"
+        );
+      }
+    }, [showNato]);
+
+
   /* ---------------- NATO toggle ---------------- */
   useEffect(()=>{
     const map = mapRefInstance.current;
