@@ -13,6 +13,13 @@ export const siteConfig = {
     "I’m a full-stack developer with a masters degree in Computer Science and certifications in AWS, Azure and Palantir. I build scalable, intelligent systems and, outside work, a part-time investor with a tech-focused, long-term growth strategy. I research AI and quantum computing to stay on the cutting edge while closely following geopolitics to ground technological insight in global context. My work sits at the intersection of engineering excellence, emerging tech, and strategic perspective.",
   skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
+     {
+      name: "The Situation Room",
+      description:
+        "Near real-time monitoring of global events, geopolitical tensions, and emerging risks.",
+      link: "https://bradleyclemson.com/situation-room",
+      skills: ["TypeScript", "React", "Geopolitics"],
+    },
     {
       name: "Employee Smart Assistant",
       description:
@@ -33,13 +40,6 @@ export const siteConfig = {
         "Exploring the practical application of generative AI in a Spring Boot application with Spring AI.",
       link: "https://github.com/bradclemson97/spring-ai-example",
       skills: ["Java", "Spring", "AI"],
-    },
-    {
-      name: "Lawn Intelligence",
-      description:
-        "A mobile-first, fully responsive application that analyzes the health of your lawn and recommends maintenance actions using AI.",
-      link: "https://github.com/bradclemson97/lawn-intelligence",
-      skills: ["TypeScript", "React", "Python"],
     },
     {
       name: "IoT Aware",

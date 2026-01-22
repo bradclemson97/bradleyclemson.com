@@ -143,8 +143,9 @@ export default function SituationRoomMap() {
           clickPopup.current!.setHTML(`<div class="text-red-400">Failed to load updates</div>`);
         }
       });
-
+        map.resize();
     });
+    requestAnimationFrame(() => map.resize());
   },[]);
 
   /* ---------------- NATO toggle ---------------- */
