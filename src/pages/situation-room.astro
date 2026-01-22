@@ -1,0 +1,50 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SituationRoomMap from "../components/SituationRoomMap";
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Near real-time global events and geopolitical tensions powered by GDELT." />
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>The Situation Room</title>
+  </head>
+
+  <body class="bg-neutral-950 text-neutral-200">
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+      <!-- Page Header -->
+      <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-white">
+          The Situation Room
+        </h1>
+
+        <p class="mt-2 text-sm md:text-base text-neutral-400 max-w-2xl">
+          Near real-time monitoring of global events, geopolitical tensions,
+          and emerging risks — powered by GDELT.
+        </p>
+      </header>
+
+      <!-- Map Panel -->
+      <section class="relative">
+        <div class="rounded-2xl border border-neutral-800 bg-neutral-900/40 backdrop-blur-sm shadow-2xl">
+          <SituationRoomMap client:load />
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+  </body>
+</html>

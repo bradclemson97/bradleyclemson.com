@@ -25,12 +25,16 @@ If you'd like to run it locally:
 git clone https://github.com/RyanFitzgerald/devportfolio.git
 cd devportfolio
 npm install
+npm install -D netlify-cli
+npx astro add react
+npm install maplibre-gl
+
 ```
 
-After that, start up the Astro dev server with:
+After that, start up the Astro-Netlify  dev server with:
 
 ```
-npm run dev
+npm run netlify:dev
 ```
 
 ## Deployment
