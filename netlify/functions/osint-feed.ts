@@ -1,8 +1,6 @@
 import type { Handler } from "@netlify/functions";
 
-const NEWS_API_KEY = "2d6ef35669314752bef6ef419570b6b6";
-
-//process.env.NEWSAPI_KEY;
+const NEWS_API_KEY = process.env.NEWSAPI_KEY;
 
 export const handler: Handler = async () => {
   try {
