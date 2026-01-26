@@ -82,7 +82,8 @@ export const handler: Handler = async (event) => {
       `?query=${encodeURIComponent(query)}` +
       `&timespan=${timespan}` +
       "&maxrecords=250" +
-      "&format=json";
+      "&format=json" +
+      "&translation=auto";
 
     const response = await fetch(url, {
       headers: {
