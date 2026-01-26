@@ -1,4 +1,5 @@
 ---
+import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import SituationRoomMap from "../components/SituationRoomMap";
 import "../styles/global.css";
@@ -8,10 +9,7 @@ import "../styles/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta
-      name="description"
-      content="Near real-time global events and geopolitical tensions powered by GDELT."
-    />
+    <meta name="description" content="Near real-time global events and geopolitical tensions powered by GDELT." />
 
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,6 +23,7 @@ import "../styles/global.css";
   </head>
 
   <body class="bg-neutral-950 text-neutral-200">
+
     <main class="max-w-7xl mx-auto px-6 py-10">
       <!-- Page Header -->
       <header class="mb-8">
@@ -40,90 +39,12 @@ import "../styles/global.css";
 
       <!-- Map Panel -->
       <section class="relative">
-        <div
-          class="rounded-2xl border border-neutral-800 bg-neutral-900/40 backdrop-blur-sm shadow-2xl"
-        >
+        <div class="rounded-2xl border border-neutral-800 bg-neutral-900/40 backdrop-blur-sm shadow-2xl">
           <SituationRoomMap client:load />
-        </div>
-      </section>
-
-      <!-- OSINT Feed -->
-      <section class="mt-16">
-        <header class="mb-6">
-          <h2 class="text-xl md:text-2xl font-semibold text-white">
-            OSINT Live Feed
-          </h2>
-          <p class="mt-1 text-sm text-neutral-400 max-w-2xl">
-            Real-time open-source intelligence from trusted analysts and
-            monitoring accounts.
-          </p>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- SentDefender -->
-          <div
-            class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-3"
-          >
-            <a
-              class="twitter-timeline"
-              data-theme="dark"
-              data-height="600"
-              data-chrome="noheader nofooter noborders"
-              href="https://twitter.com/sentdefender"
-            >
-              Tweets by SentDefender
-            </a>
-          </div>
-
-          <!-- GeoConfirmed -->
-          <div
-            class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-3"
-          >
-            <a
-              class="twitter-timeline"
-              data-theme="dark"
-              data-height="600"
-              data-chrome="noheader nofooter noborders"
-              href="https://twitter.com/GeoConfirmed"
-            >
-              Tweets by GeoConfirmed
-            </a>
-          </div>
-
-          <!-- Institute for the Study of War -->
-          <div
-            class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-3"
-          >
-            <a
-              class="twitter-timeline"
-              data-theme="dark"
-              data-height="600"
-              data-chrome="noheader nofooter noborders"
-              href="https://twitter.com/TheStudyofWar"
-            >
-              Tweets by Institute for the Study of War
-            </a>
-          </div>
         </div>
       </section>
     </main>
 
     <Footer />
-
-    <!-- Twitter/X Embed Script -->
-    <script
-      async
-      src="https://platform.twitter.com/widgets.js"
-      charset="utf-8"
-    ></script>
-
-    <!-- Force re-render of X embeds after load -->
-    <script>
-      window.addEventListener("load", () => {
-        if (window.twttr && window.twttr.widgets) {
-          window.twttr.widgets.load();
-        }
-      });
-    </script>
   </body>
 </html>
