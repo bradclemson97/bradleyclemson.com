@@ -2,6 +2,7 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import SituationRoomMap from "../components/SituationRoomMap";
+import OsintFeed from "../components/OsintFeed";
 import "../styles/global.css";
 ---
 
@@ -43,6 +44,12 @@ import "../styles/global.css";
           <SituationRoomMap client:load />
         </div>
       </section>
+
+      <!-- OSINT Feed -->
+      <section class="mt-10">
+        <OsintFeed client:load />
+      </section>
+
     </main>
 
     <Footer />
