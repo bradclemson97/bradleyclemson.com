@@ -20,6 +20,7 @@ const tensionZones = [
   { name: "Greenland", status: "amber", coordinates: [-42, 72] },
   { name: "Thailand / Cambodia", status: "amber", coordinates: [102.5, 14.5] },
   { name: "Taiwan", status: "amber", coordinates: [121, 23.7] },
+  { name: "Iran", status: "amber", coordinates: [53.688, 32.4279] },
 ];
 
 interface CountryData { country: string; count: number; }
