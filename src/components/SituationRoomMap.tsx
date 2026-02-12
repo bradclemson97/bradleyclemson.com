@@ -5,7 +5,7 @@ import { countryCentroids } from "../data/countryCentroids";
 
 /* ---------------- NATO (ISO-3) ---------------- */
 const NATO_MEMBERS = [
-  "USA","CAN","GBR","FRA","DEU","ITA","ESP","PRT","NLD","BEL","LUX",
+  "USA","CAN","GBR","FRA","-99","DEU","ITA","ESP","PRT","NLD","BEL","LUX",
   "NOR","DNK","ISL","POL","CZE","SVK","HUN","ROU","BGR","HRV","SVN",
   "ALB","MNE","MKD","GRC","TUR","LTU","LVA","EST","FIN","SWE"
 ];
