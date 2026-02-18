@@ -1,4 +1,5 @@
 import type { Handler } from "@netlify/functions";
+import https from "https";
 
 // Mapping full country names → ISO codes
 const COUNTRY_CODES: Record<string, string> = {
@@ -84,8 +85,6 @@ export const handler: Handler = async (event) => {
       "&maxrecords=250" +
       "&format=json" +
       "&translation=auto";
-
-    import https from "https";
 
     const agent = new https.Agent({
       family: 4, // 👈 FORCE IPv4
