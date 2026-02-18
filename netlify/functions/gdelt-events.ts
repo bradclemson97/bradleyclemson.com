@@ -85,11 +85,18 @@ export const handler: Handler = async (event) => {
       "&format=json" +
       "&translation=auto";
 
+    import https from "https";
+
+    const agent = new https.Agent({
+      family: 4, // 👈 FORCE IPv4
+    });
+
     const response = await fetch(url, {
       headers: {
         "User-Agent": "SituationRoom/1.0",
         Accept: "application/json",
       },
+      agent,
     });
 
     const data = await response.json();
