@@ -26,7 +26,7 @@ const tensionZones = [
 interface CountryData { country: string; count: number; }
 interface Article { title: string; url: string; source?: string; date?: string; }
 
-const topics = ["protest", "cyber", "election"];
+const topics = ["protest", "cyber", "election", "sanctions", "military", "disaster"];
 const timeRanges = ["6h", "24h", "7d"];
 
 /* ---------------- GDELT date parser ---------------- */

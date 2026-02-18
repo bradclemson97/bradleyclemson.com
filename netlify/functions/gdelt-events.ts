@@ -138,11 +138,14 @@ export const handler: Handler = async (event) => {
         countries,
       }),
     };
-  } catch (err) {
-    console.error("GDELT error:", err);
+  } catch (err: any) {
+    console.error("FULL ERROR:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({
+        error: "Internal server error",
+        message: err?.message,
+      }),
     };
   }
 };
