@@ -23,6 +23,45 @@ const tensionZones = [
   { name: "Iran", status: "amber", coordinates: [53.688, 32.4279] },
 ];
 
+/* ---------------- Strategic Landmarks ---------------- */
+const landmarks = [
+  {
+    name: "NATO Headquarters",
+    keyword: "NATO Brussels",
+    coordinates: [4.4277, 50.8806],
+  },
+  {
+    name: "Pentagon",
+    keyword: "Pentagon US Department of Defense",
+    coordinates: [-77.0563, 38.8719],
+  },
+  {
+    name: "GCHQ",
+    keyword: "GCHQ United Kingdom",
+    coordinates: [-2.2174, 51.8944],
+  },
+  {
+    name: "White House",
+    keyword: "White House Washington",
+    coordinates: [-77.0365, 38.8977],
+  },
+  {
+    name: "Kremlin",
+    keyword: "Kremlin Moscow",
+    coordinates: [37.6173, 55.7558],
+  },
+  {
+    name: "Zhongnanhai",
+    keyword: "Zhongnanhai Beijing",
+    coordinates: [116.3914, 39.9200],
+  },
+  {
+    name: "UN Headquarters",
+    keyword: "United Nations New York",
+    coordinates: [-73.9680, 40.7489],
+  }
+];
+
 interface CountryData { country: string; count: number; }
 interface Article { title: string; url: string; source?: string; date?: string; }
 
@@ -120,6 +159,35 @@ export default function SituationRoomMap() {
         }
       });
 
+      /* ---------- Landmarks layer ---------- */
+      const landmarkGeo = {
+        type: "FeatureCollection",
+        features: landmarks.map(l => ({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: l.coordinates },
+          properties: l
+        }))
+      };
+
+      map.addSource("landmarks", {
+        type: "geojson",
+        data: landmarkGeo
+      });
+
+      map.addLayer({
+        id: "landmarks-layer",
+        type: "symbol",
+        source: "landmarks",
+        layout: {
+          "icon-image": "star-15",
+          "icon-size": 1.5,
+          "icon-allow-overlap": true
+        },
+        paint: {
+          "icon-color": "#a855f7"
+        }
+      });
+
       /* ---------- Tension zones click ---------- */
       map.on("click","tension-zones-layer", async (e)=>{
         const f = e.features?.[0]; if(!f) return;
@@ -142,6 +210,53 @@ export default function SituationRoomMap() {
           );
         }catch{
           clickPopup.current!.setHTML(`<div class="text-red-400">Failed to load updates</div>`);
+        }
+      });
+
+      map.on("click", "landmarks-layer", async (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+
+        const { name, keyword } = f.properties as any;
+        const coords = (f.geometry as GeoJSON.Point).coordinates;
+
+        clickPopup.current!
+          .setLngLat(coords as [number, number])
+          .setHTML(`<div class="text-neutral-400">Loading ${name}…</div>`)
+          .addTo(map);
+
+        try {
+          const res = await fetch(
+            `/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(keyword)}`
+          );
+          const data = await res.json();
+          const articles: Article[] = data.articles || [];
+
+          clickPopup.current!.setHTML(
+            articles.length === 0
+              ? `<div class="text-neutral-400">No recent articles</div>`
+              : `
+                <strong style="color:#a855f7;">⭐ ${name}</strong>
+                <div style="max-height:220px;overflow:auto;margin-top:6px;">
+                  ${articles.slice(0, 8).map(a => {
+                    const d = parseGdeltDate(a.date);
+                    return `
+                      <div style="margin-bottom:8px;">
+                        <a href="${a.url}" target="_blank" style="color:#c084fc;font-weight:600;">
+                          ${a.title}
+                        </a>
+                        <div style="font-size:11px;color:#9ca3af;">
+                          ${a.source ?? ""}${d ? " • " + d.toLocaleString() : ""}
+                        </div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>`
+          );
+        } catch {
+          clickPopup.current!.setHTML(
+            `<div class="text-red-400">Failed to load updates</div>`
+          );
         }
       });
         map.resize();
