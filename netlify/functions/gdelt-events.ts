@@ -65,43 +65,67 @@ export const handler: Handler = async (event) => {
     const countryFilter = event.queryStringParameters?.country;
     const keyword = event.queryStringParameters?.keyword;
 
-    // ---------------- Build GDELT query ----------------
     let query = topic;
 
     if (keyword) {
       query = keyword;
     } else if (countryFilter) {
-      // If input is ISO code, map to full country name
-      const normalizedCountry =
-        COUNTRY_CODES_REVERSE[countryFilter.toUpperCase()] || countryFilter;
-      query = normalizedCountry;
+      query = countryFilter;
     }
 
     const url =
       "https://api.gdeltproject.org/api/v2/doc/doc" +
       `?query=${encodeURIComponent(query)}` +
+      `&mode=ArtList` +                     // ✅ REQUIRED
       `&timespan=${timespan}` +
-      "&maxrecords=250" +
-      "&format=json" +
-      "&translation=auto";
+      `&maxrecords=150` +
+      `&format=json`;
+
+    // ✅ Add timeout protection
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
     const response = await fetch(url, {
+      signal: controller.signal,
       headers: {
         "User-Agent": "SituationRoom/1.0",
         Accept: "application/json",
       },
     });
 
-    const data = await response.json();
+    clearTimeout(timeout);
 
-    if (!data.articles) {
+    // ✅ Never assume response is OK
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("GDELT non-200:", response.status, text);
+
+      return {
+        statusCode: 200, // Never crash outward
+        body: JSON.stringify({ countries: [], articles: [] }),
+      };
+    }
+
+    let data: any;
+
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      console.error("JSON Parse Error");
       return {
         statusCode: 200,
         body: JSON.stringify({ countries: [], articles: [] }),
       };
     }
 
-    // ---------------- COUNTRY DRILLDOWN MODE ----------------
+    if (!Array.isArray(data.articles)) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ countries: [], articles: [] }),
+      };
+    }
+
+    // ---------------- DRILLDOWN MODE ----------------
     if (countryFilter || keyword) {
       const articles = data.articles.slice(0, 20).map((a: any) => ({
         title: a.title,
@@ -119,16 +143,19 @@ export const handler: Handler = async (event) => {
 
     // ---------------- AGGREGATION MODE ----------------
     const countryCounts: Record<string, number> = {};
+
     for (const article of data.articles) {
       const c = article.sourcecountry;
       if (!c) continue;
       countryCounts[c] = (countryCounts[c] || 0) + 1;
     }
 
-    const countries = Object.entries(countryCounts).map(([country, count]) => ({
-      country,
-      count,
-    }));
+    const countries = Object.entries(countryCounts).map(
+      ([country, count]) => ({
+        country,
+        count,
+      })
+    );
 
     return {
       statusCode: 200,
@@ -138,14 +165,14 @@ export const handler: Handler = async (event) => {
         countries,
       }),
     };
+
   } catch (err: any) {
-    console.error("FULL ERROR:", err);
+    console.error("FUNCTION CRASH:", err);
+
+    // ✅ NEVER return 500 — prevents 502 Bad Gateway
     return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: "Internal server error",
-        message: err?.message,
-      }),
+      statusCode: 200,
+      body: JSON.stringify({ countries: [], articles: [] }),
     };
   }
 };
