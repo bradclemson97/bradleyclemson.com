@@ -10,7 +10,7 @@ const NATO_MEMBERS = [
   "ALB","MNE","MKD","GRC","TUR","LTU","LVA","EST","FIN","SWE"
 ];
 
-/* ---------------- Tension Zones ---------------- */
+/* ---------------- Tension Zones / Strategic Landmarks ---------------- */
 const tensionZones = [
   {
     name: "Sudan civil war",
@@ -147,7 +147,6 @@ export default function SituationRoomMap() {
       const addNatoLayer = () => {
         if(!map.getSource("countries")) return;
         if(!map.getLayer("nato-borders")){
-
           map.addLayer({
             id: "nato-borders",
             type: "line",
@@ -162,13 +161,11 @@ export default function SituationRoomMap() {
               ["literal", NATO_MEMBERS]
             ]
           });
-
-
         }
       };
       setTimeout(addNatoLayer, 500);
 
-      /* ---------- Tension zones layer ---------- */
+      /* ---------- Tension zones + landmarks layer ---------- */
       const tensionGeo = {
         type:"FeatureCollection",
         features:tensionZones.map(z=>({
@@ -186,13 +183,13 @@ export default function SituationRoomMap() {
         source:"tension-zones",
         paint:{
           "circle-radius":7,
-          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","landmark", "#8b5cf6", "#6b7280"],
+          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","landmark","#8b5cf6","#6b7280"],
           "circle-stroke-color":"#000",
           "circle-stroke-width":1.5
         }
       });
 
-      /* ---------- Tension zones click ---------- */
+      /* ---------- Click on tension zones / landmarks ---------- */
       map.on("click", "tension-zones-layer", async (e) => {
         const f = e.features?.[0];
         if (!f) return;
@@ -209,7 +206,6 @@ export default function SituationRoomMap() {
           const data = await res.json();
           const articles: Article[] = data.articles || [];
 
-          // Choose badge text and color based on status
           const statusText =
             status === "red" ? "🔴 Active Conflict" :
             status === "amber" ? "🟠 Heightened Tensions" :
@@ -246,48 +242,24 @@ export default function SituationRoomMap() {
           clickPopup.current!.setHTML(`<div style="color:#b91c1c;">Failed to load updates</div>`);
         }
       });
-        map.resize();
+
+      map.resize();
     });
+
     requestAnimationFrame(() => map.resize());
-  },[]);
+  }, []);
 
-/* ---------------- Resize for mobile  ---------------- */
-    useEffect(() => {
-      const map = mapRefInstance.current;
-      const container = mapRef.current;
-      if (!map || !container) return;
+  /* ---------------- Resize for mobile ---------------- */
+  useEffect(() => {
+    const map = mapRefInstance.current;
+    const container = mapRef.current;
+    if (!map || !container) return;
+    const observer = new ResizeObserver(() => { map.resize(); });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
-      const observer = new ResizeObserver(() => {
-        map.resize();
-      });
-
-      observer.observe(container);
-
-      return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
-      const map = mapRefInstance.current;
-      if (!map) return;
-
-      if (map.getLayer("nato-borders")) {
-        map.setLayoutProperty(
-          "nato-borders",
-          "visibility",
-          showNato ? "visible" : "none"
-        );
-      }
-      if (map.getLayer("nato-borders-glow")) {
-        map.setLayoutProperty(
-          "nato-borders-glow",
-          "visibility",
-          showNato ? "visible" : "none"
-        );
-      }
-    }, [showNato]);
-
-
-  /* ---------------- NATO toggle ---------------- */
+  /* ---------------- NATO visibility ---------------- */
   useEffect(()=>{
     const map = mapRefInstance.current;
     if(!map || !map.getLayer("nato-borders")) return;
@@ -298,26 +270,21 @@ export default function SituationRoomMap() {
   useEffect(()=>{
     const map = mapRefInstance.current;
     if(!map) return;
-
     const t = setTimeout(async ()=>{
       setLoading(true);
       try{
         const res = await fetch(`/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}`);
         const data = await res.json();
         if(!data.countries) return;
-
         const top = [...data.countries].sort((a:CountryData,b:CountryData)=>b.count-a.count).slice(0,5);
         const geojson = { type:"FeatureCollection", features: top.map(c=>{
           const coords = countryCentroids[c.country];
           if(!coords) return null;
           return { type:"Feature", geometry:{ type:"Point", coordinates:coords }, properties:c };
         }).filter(Boolean)};
-
         if(map.getLayer("top-countries-layer")) map.removeLayer("top-countries-layer");
         if(map.getSource("top-countries")) map.removeSource("top-countries");
-
         map.addSource("top-countries",{ type:"geojson", data:geojson });
-
         map.addLayer({
           id:"top-countries-layer",
           type:"circle",
@@ -329,47 +296,8 @@ export default function SituationRoomMap() {
             "circle-stroke-width":1.5
           }
         });
-
-        map.on("mouseenter","top-countries-layer",()=>map.getCanvas().style.cursor="pointer");
-        map.on("mouseleave","top-countries-layer",()=>map.getCanvas().style.cursor="");
-
-        map.on("click","top-countries-layer",async(e)=>{
-          const f = e.features?.[0]; if(!f) return;
-          const {country} = f.properties as any;
-          const coords = (f.geometry as GeoJSON.Point).coordinates;
-
-          clickPopup.current!.setLngLat(coords as [number,number])
-            .setHTML(`<div class="text-sm text-neutral-400">Loading news…</div>`)
-            .addTo(map);
-
-          try{
-            const res = await fetch(`/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(country)}`);
-            const data = await res.json();
-            const articles:Article[] = data.articles||[];
-            clickPopup.current!.setHTML(
-              articles.slice(0,8).map(a=>{
-                const d=parseGdeltDate(a.date);
-                return `<div style="margin-bottom:8px;"><a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">${a.title}</a><div style="font-size:11px;color:#9ca3af;">${a.source??""}${d?" • "+d.toLocaleString():""}</div></div>`;
-              }).join("")
-            );
-          }catch{
-            clickPopup.current!.setHTML(`<div class="text-sm text-red-400">Failed to load articles</div>`);
-          }
-        });
-
-        /* ---------- Pulse animation ---------- */
-        let frame=0;
-        const animate=()=>{
-          if(!map.getLayer("top-countries-layer")) return;
-          frame+=0.04;
-          map.setPaintProperty("top-countries-layer","circle-radius",["+",3,["min",4,["*",0.25,["get","count"]]],["*",1.5,Math.sin(frame)]]);
-          requestAnimationFrame(animate);
-        };
-        animate();
-
-      }finally{ setLoading(false); }
+      } finally { setLoading(false); }
     },300);
-
     return ()=>clearTimeout(t);
   },[topic,timeRange]);
 
@@ -379,20 +307,39 @@ export default function SituationRoomMap() {
         <select value={topic} onChange={e=>setTopic(e.target.value)} className="bg-neutral-800 text-white rounded px-2 py-1">
           {topics.map(t=><option key={t}>{t}</option>)}
         </select>
-
         <select value={timeRange} onChange={e=>setTimeRange(e.target.value)} className="bg-neutral-800 text-white rounded px-2 py-1">
           {timeRanges.map(t=><option key={t}>{t}</option>)}
         </select>
-
         <label className="flex items-center gap-2 text-sm text-blue-400">
           <input type="checkbox" checked={showNato} onChange={e=>setShowNato(e.target.checked)} className="accent-blue-500"/>
           NATO
         </label>
-
         {loading && <div className="text-red-400">Loading…</div>}
       </div>
 
-      <div ref={mapRef} className="rounded-xl shadow-2xl border border-neutral-800" style={{height:"600px", width:"100%"}}/>
+      {/* ---------------- Map + Legend ---------------- */}
+      <div style={{ position:"relative" }}>
+        {/* Legend */}
+        <div style={{
+          position: "absolute",
+          top: 80,
+          right: 20,
+          backgroundColor: "rgba(255,255,255,0.9)",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          fontSize: "12px",
+          color: "#111",
+          zIndex: 10,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+        }}>
+          <div style={{marginBottom: "4px"}}><span style={{color:"#f59e0b"}}>🟡</span> Tension</div>
+          <div style={{marginBottom: "4px"}}><span style={{color:"#dc2626"}}>🔴</span> Active Conflict</div>
+          <div><span style={{color:"#8b5cf6"}}>🟣</span> Strategic Landmark</div>
+        </div>
+
+        {/* Map */}
+        <div ref={mapRef} className="rounded-xl shadow-2xl border border-neutral-800" style={{height:"600px", width:"100%"}}/>
+      </div>
     </div>
   );
 }
