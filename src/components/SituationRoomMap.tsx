@@ -12,15 +12,69 @@ const NATO_MEMBERS = [
 
 /* ---------------- Tension Zones ---------------- */
 const tensionZones = [
-  { name: "Sudan civil war", status: "red", coordinates: [30, 15] },
-  { name: "Syrian civil war", status: "red", coordinates: [38, 35] },
-  { name: "Ukraine / Russia", status: "red", coordinates: [36, 49] },
-  { name: "India / Pakistan", status: "amber", coordinates: [74, 32] },
-  { name: "Israel / Gaza", status: "amber", coordinates: [34.8, 31.5] },
-  { name: "Greenland", status: "amber", coordinates: [-42, 72] },
-  { name: "Thailand / Cambodia", status: "amber", coordinates: [102.5, 14.5] },
-  { name: "Taiwan", status: "amber", coordinates: [121, 23.7] },
-  { name: "Iran", status: "amber", coordinates: [53.688, 32.4279] },
+  {
+    name: "Sudan civil war",
+    status: "red",
+    coordinates: [30, 15],
+    description:
+      "Ongoing conflict between the Sudanese Armed Forces (SAF) and the Rapid Support Forces (RSF) since April 2023. Fighting has displaced millions and destabilized Khartoum and Darfur."
+  },
+  {
+    name: "Syrian civil war",
+    status: "red",
+    coordinates: [38, 35],
+    description:
+      "Multi-sided conflict beginning in 2011 involving the Assad government, rebel factions, Kurdish forces, ISIS remnants, and foreign actors including Russia, Iran, Turkey, and the US."
+  },
+  {
+    name: "Ukraine / Russia",
+    status: "red",
+    coordinates: [36, 49],
+    description:
+      "Full-scale Russian invasion launched in February 2022 following the 2014 annexation of Crimea. Ongoing high-intensity warfare across eastern and southern Ukraine."
+  },
+  {
+    name: "India / Pakistan",
+    status: "amber",
+    coordinates: [74, 32],
+    description:
+      "Longstanding territorial dispute over Kashmir. Periodic cross-border firing and political escalation between two nuclear-armed states."
+  },
+  {
+    name: "Israel / Gaza",
+    status: "amber",
+    coordinates: [34.8, 31.5],
+    description:
+      "Escalating conflict between Israel and Hamas following October 2023 attacks. Ongoing military operations and regional tensions."
+  },
+  {
+    name: "Greenland",
+    status: "amber",
+    coordinates: [-42, 72],
+    description:
+      "Strategic Arctic region gaining geopolitical importance due to climate change, resource competition, and US-China-Russia interest."
+  },
+  {
+    name: "Thailand / Cambodia",
+    status: "amber",
+    coordinates: [102.5, 14.5],
+    description:
+      "Periodic border tensions centered around disputed temple sites and nationalist political rhetoric."
+  },
+  {
+    name: "Taiwan",
+    status: "amber",
+    coordinates: [121, 23.7],
+    description:
+      "Rising cross-strait tensions as China increases military pressure while Taiwan strengthens international partnerships."
+  },
+  {
+    name: "Iran",
+    status: "amber",
+    coordinates: [53.688, 32.4279],
+    description:
+      "Heightened tensions involving Iran’s nuclear program, regional proxy conflicts, and confrontation with Israel and the United States."
+  },
 ];
 
 interface CountryData { country: string; count: number; }
@@ -123,7 +177,7 @@ export default function SituationRoomMap() {
       /* ---------- Tension zones click ---------- */
       map.on("click","tension-zones-layer", async (e)=>{
         const f = e.features?.[0]; if(!f) return;
-        const {name,status} = f.properties as any;
+        const {name,status,description} = f.properties as any;
         const coords = (f.geometry as GeoJSON.Point).coordinates;
 
         clickPopup.current!.setLngLat(coords as [number,number])
@@ -136,9 +190,39 @@ export default function SituationRoomMap() {
           const articles:Article[] = data.articles||[];
 
           clickPopup.current!.setHTML(
-            articles.length===0
-            ? `<div class="text-neutral-400">No recent articles</div>`
-            : `<strong>${name}</strong><div style="font-size:12px;margin-bottom:6px;">${status==="red"?"🔴 Active Conflict":"🟠 Heightened Tensions"}</div><div style="max-height:220px;overflow:auto;">${articles.slice(0,8).map(a=>{ const d=parseGdeltDate(a.date); return `<div style="margin-bottom:8px;"><a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">${a.title}</a><div style="font-size:11px;color:#9ca3af;">${a.source??""}${d?" • "+d.toLocaleString():""}</div></div>`; }).join("")}</div>`
+            `
+            <div style="max-width:340px;">
+              <strong style="font-size:14px;">${name}</strong>
+              <div style="font-size:12px;margin:4px 0 6px 0;">
+                ${status==="red"?"🔴 Active Conflict":"🟠 Heightened Tensions"}
+              </div>
+
+              <div style="font-size:12px;color:#d1d5db;margin-bottom:8px;line-height:1.4;">
+                ${description}
+              </div>
+
+              ${
+                articles.length === 0
+                  ? `<div class="text-neutral-400 text-sm">No recent articles</div>`
+                  : `<div style="max-height:200px;overflow:auto;border-top:1px solid #333;padding-top:6px;">
+                      ${articles.slice(0,8).map(a=>{
+                        const d=parseGdeltDate(a.date);
+                        return `
+                          <div style="margin-bottom:8px;">
+                            <a href="${a.url}" target="_blank"
+                               style="color:#f87171;font-weight:600;font-size:12px;">
+                               ${a.title}
+                            </a>
+                            <div style="font-size:10px;color:#9ca3af;">
+                              ${a.source??""}${d?" • "+d.toLocaleString():""}
+                            </div>
+                          </div>
+                        `;
+                      }).join("")}
+                    </div>`
+              }
+            </div>
+            `
           );
         }catch{
           clickPopup.current!.setHTML(`<div class="text-red-400">Failed to load updates</div>`);
