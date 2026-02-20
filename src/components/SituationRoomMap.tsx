@@ -10,17 +10,89 @@ const NATO_MEMBERS = [
   "ALB","MNE","MKD","GRC","TUR","LTU","LVA","EST","FIN","SWE"
 ];
 
-/* ---------------- Tension Zones ---------------- */
+/* ---------------- Tension Zones / Strategic Landmarks ---------------- */
 const tensionZones = [
-  { name: "Sudan civil war", status: "red", coordinates: [30, 15] },
-  { name: "Syrian civil war", status: "red", coordinates: [38, 35] },
-  { name: "Ukraine / Russia", status: "red", coordinates: [36, 49] },
-  { name: "India / Pakistan", status: "amber", coordinates: [74, 32] },
-  { name: "Israel / Gaza", status: "amber", coordinates: [34.8, 31.5] },
-  { name: "Greenland", status: "amber", coordinates: [-42, 72] },
-  { name: "Thailand / Cambodia", status: "amber", coordinates: [102.5, 14.5] },
-  { name: "Taiwan", status: "amber", coordinates: [121, 23.7] },
-  { name: "Iran", status: "amber", coordinates: [53.688, 32.4279] },
+  {
+    name: "Sudan civil war",
+    status: "red",
+    coordinates: [30, 15],
+    description:
+      "Ongoing conflict between the Sudanese Armed Forces (SAF) and the Rapid Support Forces (RSF) since April 2023. Fighting has displaced millions and destabilized Khartoum and Darfur."
+  },
+  {
+    name: "Syrian civil war",
+    status: "red",
+    coordinates: [38, 35],
+    description:
+      "Multi-sided conflict beginning in 2011 involving the Assad government, rebel factions, Kurdish forces, ISIS remnants, and foreign actors including Russia, Iran, Turkey, and the US."
+  },
+  {
+    name: "Ukraine / Russia",
+    status: "red",
+    coordinates: [36, 49],
+    description:
+      "Full-scale Russian invasion launched in February 2022 following the 2014 annexation of Crimea. Ongoing high-intensity warfare across eastern and southern Ukraine."
+  },
+  {
+    name: "India / Pakistan",
+    status: "amber",
+    coordinates: [74, 32],
+    description:
+      "Longstanding territorial dispute over Kashmir. Periodic cross-border firing and political escalation between two nuclear-armed states."
+  },
+  {
+    name: "Israel / Gaza",
+    status: "amber",
+    coordinates: [34.8, 31.5],
+    description:
+      "Escalating conflict between Israel and Hamas following October 2023 attacks. Ongoing military operations and regional tensions."
+  },
+  {
+    name: "Greenland",
+    status: "amber",
+    coordinates: [-42, 72],
+    description:
+      "Strategic Arctic region gaining geopolitical importance due to climate change, resource competition, and US-China-Russia interest."
+  },
+  {
+    name: "Thailand / Cambodia",
+    status: "amber",
+    coordinates: [102.5, 14.5],
+    description:
+      "Periodic border tensions centered around disputed temple sites and nationalist political rhetoric."
+  },
+  {
+    name: "Taiwan",
+    status: "amber",
+    coordinates: [121, 23.7],
+    description:
+      "Rising cross-strait tensions as China increases military pressure while Taiwan strengthens international partnerships."
+  },
+  {
+    name: "Iran",
+    status: "amber",
+    coordinates: [53.688, 32.4279],
+    description:
+      "Heightened tensions involving Iran’s nuclear program, regional proxy conflicts, and confrontation with Israel and the United States."
+  },
+  {
+    name: "Pentagon",
+    status: "landmark",
+    coordinates: [-77.055, 38.870],
+    description: "Headquarters of the United States Department of Defense."
+  },
+  {
+    name: "GCHQ",
+    status: "landmark",
+    coordinates: [-0.094, 51.073],
+    description: "Government Communications Headquarters, UK intelligence and security organization."
+  },
+  {
+    name: "NATO Headquarters",
+    status: "landmark",
+    coordinates: [4.437, 50.911],
+    description: "North Atlantic Treaty Organization political and military HQ, Brussels."
+  },
 ];
 
 interface CountryData { country: string; count: number; }
@@ -75,7 +147,6 @@ export default function SituationRoomMap() {
       const addNatoLayer = () => {
         if(!map.getSource("countries")) return;
         if(!map.getLayer("nato-borders")){
-
           map.addLayer({
             id: "nato-borders",
             type: "line",
@@ -90,13 +161,11 @@ export default function SituationRoomMap() {
               ["literal", NATO_MEMBERS]
             ]
           });
-
-
         }
       };
       setTimeout(addNatoLayer, 500);
 
-      /* ---------- Tension zones layer ---------- */
+      /* ---------- Tension zones + landmarks layer ---------- */
       const tensionGeo = {
         type:"FeatureCollection",
         features:tensionZones.map(z=>({
@@ -114,78 +183,83 @@ export default function SituationRoomMap() {
         source:"tension-zones",
         paint:{
           "circle-radius":7,
-          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","#6b7280"],
+          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","landmark","#8b5cf6","#6b7280"],
           "circle-stroke-color":"#000",
           "circle-stroke-width":1.5
         }
       });
 
-      /* ---------- Tension zones click ---------- */
-      map.on("click","tension-zones-layer", async (e)=>{
-        const f = e.features?.[0]; if(!f) return;
-        const {name,status} = f.properties as any;
+      /* ---------- Click on tension zones / landmarks ---------- */
+      map.on("click", "tension-zones-layer", async (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+
+        const { name, status, description } = f.properties as any;
         const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-        clickPopup.current!.setLngLat(coords as [number,number])
-          .setHTML(`<div class="text-neutral-400">Loading ${name}…</div>`)
+        clickPopup.current!.setLngLat(coords as [number, number])
+          .setHTML(`<div style="color:#111;">Loading ${name}…</div>`)
           .addTo(map);
 
-        try{
+        try {
           const res = await fetch(`/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(name)}`);
           const data = await res.json();
-          const articles:Article[] = data.articles||[];
+          const articles: Article[] = data.articles || [];
 
-          clickPopup.current!.setHTML(
-            articles.length===0
-            ? `<div class="text-neutral-400">No recent articles</div>`
-            : `<strong>${name}</strong><div style="font-size:12px;margin-bottom:6px;">${status==="red"?"🔴 Active Conflict":"🟠 Heightened Tensions"}</div><div style="max-height:220px;overflow:auto;">${articles.slice(0,8).map(a=>{ const d=parseGdeltDate(a.date); return `<div style="margin-bottom:8px;"><a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">${a.title}</a><div style="font-size:11px;color:#9ca3af;">${a.source??""}${d?" • "+d.toLocaleString():""}</div></div>`; }).join("")}</div>`
-          );
-        }catch{
-          clickPopup.current!.setHTML(`<div class="text-red-400">Failed to load updates</div>`);
+          const statusText =
+            status === "red" ? "🔴 Active Conflict" :
+            status === "amber" ? "🟠 Heightened Tensions" :
+            status === "landmark" ? "🟣 Strategic Landmark" :
+            "";
+
+          const statusColor =
+            status === "red" ? "#b91c1c" :
+            status === "amber" ? "#c2410c" :
+            status === "landmark" ? "#8b5cf6" :
+            "#6b7280";
+
+          clickPopup.current!.setHTML(`
+            <div style="max-width:340px; font-family: 'IBM Plex Mono', monospace; color:#111;">
+              <strong style="font-size:14px; color:#111;">${name}</strong>
+              <div style="font-size:12px; margin:4px 0 6px 0; color:${statusColor};">${statusText}</div>
+              <div style="font-size:12px; color:#111; margin-bottom:8px; line-height:1.4;">${description}</div>
+              ${
+                articles.length === 0
+                  ? `<div style="color:#333; font-size:12px;">No recent articles</div>`
+                  : `<div style="max-height:200px; overflow:auto; border-top:1px solid #ccc; padding-top:6px;">
+                      ${articles.slice(0,8).map(a => {
+                        const d = parseGdeltDate(a.date);
+                        return `<div style="margin-bottom:8px;">
+                          <a href="${a.url}" target="_blank" style="color:${statusColor}; font-weight:600; font-size:12px;">${a.title}</a>
+                          <div style="font-size:10px; color:#444;">${a.source??""}${d?" • "+d.toLocaleString():""}</div>
+                        </div>`;
+                      }).join("")}
+                    </div>`
+              }
+            </div>
+          `);
+        } catch {
+          clickPopup.current!.setHTML(`<div style="color:#b91c1c;">Failed to load updates</div>`);
         }
       });
-        map.resize();
+
+      map.resize();
     });
+
     requestAnimationFrame(() => map.resize());
-  },[]);
+  }, []);
 
-/* ---------------- Resize for mobile  ---------------- */
-    useEffect(() => {
-      const map = mapRefInstance.current;
-      const container = mapRef.current;
-      if (!map || !container) return;
+  /* ---------------- Resize for mobile ---------------- */
+  useEffect(() => {
+    const map = mapRefInstance.current;
+    const container = mapRef.current;
+    if (!map || !container) return;
+    const observer = new ResizeObserver(() => { map.resize(); });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
-      const observer = new ResizeObserver(() => {
-        map.resize();
-      });
-
-      observer.observe(container);
-
-      return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
-      const map = mapRefInstance.current;
-      if (!map) return;
-
-      if (map.getLayer("nato-borders")) {
-        map.setLayoutProperty(
-          "nato-borders",
-          "visibility",
-          showNato ? "visible" : "none"
-        );
-      }
-      if (map.getLayer("nato-borders-glow")) {
-        map.setLayoutProperty(
-          "nato-borders-glow",
-          "visibility",
-          showNato ? "visible" : "none"
-        );
-      }
-    }, [showNato]);
-
-
-  /* ---------------- NATO toggle ---------------- */
+  /* ---------------- NATO visibility ---------------- */
   useEffect(()=>{
     const map = mapRefInstance.current;
     if(!map || !map.getLayer("nato-borders")) return;
@@ -196,26 +270,21 @@ export default function SituationRoomMap() {
   useEffect(()=>{
     const map = mapRefInstance.current;
     if(!map) return;
-
     const t = setTimeout(async ()=>{
       setLoading(true);
       try{
         const res = await fetch(`/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}`);
         const data = await res.json();
         if(!data.countries) return;
-
         const top = [...data.countries].sort((a:CountryData,b:CountryData)=>b.count-a.count).slice(0,5);
         const geojson = { type:"FeatureCollection", features: top.map(c=>{
           const coords = countryCentroids[c.country];
           if(!coords) return null;
           return { type:"Feature", geometry:{ type:"Point", coordinates:coords }, properties:c };
         }).filter(Boolean)};
-
         if(map.getLayer("top-countries-layer")) map.removeLayer("top-countries-layer");
         if(map.getSource("top-countries")) map.removeSource("top-countries");
-
         map.addSource("top-countries",{ type:"geojson", data:geojson });
-
         map.addLayer({
           id:"top-countries-layer",
           type:"circle",
@@ -227,47 +296,8 @@ export default function SituationRoomMap() {
             "circle-stroke-width":1.5
           }
         });
-
-        map.on("mouseenter","top-countries-layer",()=>map.getCanvas().style.cursor="pointer");
-        map.on("mouseleave","top-countries-layer",()=>map.getCanvas().style.cursor="");
-
-        map.on("click","top-countries-layer",async(e)=>{
-          const f = e.features?.[0]; if(!f) return;
-          const {country} = f.properties as any;
-          const coords = (f.geometry as GeoJSON.Point).coordinates;
-
-          clickPopup.current!.setLngLat(coords as [number,number])
-            .setHTML(`<div class="text-sm text-neutral-400">Loading news…</div>`)
-            .addTo(map);
-
-          try{
-            const res = await fetch(`/.netlify/functions/gdelt-events?topic=${topic}&timespan=${timeRange}&country=${encodeURIComponent(country)}`);
-            const data = await res.json();
-            const articles:Article[] = data.articles||[];
-            clickPopup.current!.setHTML(
-              articles.slice(0,8).map(a=>{
-                const d=parseGdeltDate(a.date);
-                return `<div style="margin-bottom:8px;"><a href="${a.url}" target="_blank" style="color:#f87171;font-weight:600;">${a.title}</a><div style="font-size:11px;color:#9ca3af;">${a.source??""}${d?" • "+d.toLocaleString():""}</div></div>`;
-              }).join("")
-            );
-          }catch{
-            clickPopup.current!.setHTML(`<div class="text-sm text-red-400">Failed to load articles</div>`);
-          }
-        });
-
-        /* ---------- Pulse animation ---------- */
-        let frame=0;
-        const animate=()=>{
-          if(!map.getLayer("top-countries-layer")) return;
-          frame+=0.04;
-          map.setPaintProperty("top-countries-layer","circle-radius",["+",3,["min",4,["*",0.25,["get","count"]]],["*",1.5,Math.sin(frame)]]);
-          requestAnimationFrame(animate);
-        };
-        animate();
-
-      }finally{ setLoading(false); }
+      } finally { setLoading(false); }
     },300);
-
     return ()=>clearTimeout(t);
   },[topic,timeRange]);
 
@@ -277,20 +307,39 @@ export default function SituationRoomMap() {
         <select value={topic} onChange={e=>setTopic(e.target.value)} className="bg-neutral-800 text-white rounded px-2 py-1">
           {topics.map(t=><option key={t}>{t}</option>)}
         </select>
-
         <select value={timeRange} onChange={e=>setTimeRange(e.target.value)} className="bg-neutral-800 text-white rounded px-2 py-1">
           {timeRanges.map(t=><option key={t}>{t}</option>)}
         </select>
-
         <label className="flex items-center gap-2 text-sm text-blue-400">
           <input type="checkbox" checked={showNato} onChange={e=>setShowNato(e.target.checked)} className="accent-blue-500"/>
           NATO
         </label>
-
         {loading && <div className="text-red-400">Loading…</div>}
       </div>
 
-      <div ref={mapRef} className="rounded-xl shadow-2xl border border-neutral-800" style={{height:"600px", width:"100%"}}/>
+      {/* ---------------- Map + Legend ---------------- */}
+      <div style={{ position:"relative" }}>
+        {/* Legend */}
+        <div style={{
+          position: "absolute",
+          top: 80,
+          right: 20,
+          backgroundColor: "rgba(255,255,255,0.9)",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          fontSize: "12px",
+          color: "#111",
+          zIndex: 10,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+        }}>
+          <div style={{marginBottom: "4px"}}><span style={{color:"#f59e0b"}}>🟡</span> Tension</div>
+          <div style={{marginBottom: "4px"}}><span style={{color:"#dc2626"}}>🔴</span> Active Conflict</div>
+          <div><span style={{color:"#8b5cf6"}}>🟣</span> Strategic Landmark</div>
+        </div>
+
+        {/* Map */}
+        <div ref={mapRef} className="rounded-xl shadow-2xl border border-neutral-800" style={{height:"600px", width:"100%"}}/>
+      </div>
     </div>
   );
 }
