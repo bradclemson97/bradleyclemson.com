@@ -75,6 +75,24 @@ const tensionZones = [
     description:
       "Heightened tensions involving Iran’s nuclear program, regional proxy conflicts, and confrontation with Israel and the United States."
   },
+  {
+    name: "Pentagon",
+    status: "landmark",
+    coordinates: [-77.055, 38.870],
+    description: "Headquarters of the United States Department of Defense."
+  },
+  {
+    name: "GCHQ",
+    status: "landmark",
+    coordinates: [-0.094, 51.073],
+    description: "Government Communications Headquarters, UK intelligence and security organization."
+  },
+  {
+    name: "NATO Headquarters",
+    status: "landmark",
+    coordinates: [4.437, 50.911],
+    description: "North Atlantic Treaty Organization political and military HQ, Brussels."
+  },
 ];
 
 interface CountryData { country: string; count: number; }
@@ -168,64 +186,64 @@ export default function SituationRoomMap() {
         source:"tension-zones",
         paint:{
           "circle-radius":7,
-          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","#6b7280"],
+          "circle-color":["match",["get","status"],"red","#dc2626","amber","#f59e0b","landmark", "#8b5cf6", "#6b7280"],
           "circle-stroke-color":"#000",
           "circle-stroke-width":1.5
         }
       });
 
       /* ---------- Tension zones click ---------- */
-      map.on("click","tension-zones-layer", async (e)=>{
-        const f = e.features?.[0]; if(!f) return;
-        const {name,status,description} = f.properties as any;
+      map.on("click", "tension-zones-layer", async (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+
+        const { name, status, description } = f.properties as any;
         const coords = (f.geometry as GeoJSON.Point).coordinates;
 
-        clickPopup.current!.setLngLat(coords as [number,number])
-          .setHTML(`<div class="text-neutral-400">Loading ${name}…</div>`)
+        clickPopup.current!.setLngLat(coords as [number, number])
+          .setHTML(`<div style="color:#111;">Loading ${name}…</div>`)
           .addTo(map);
 
-        try{
+        try {
           const res = await fetch(`/.netlify/functions/gdelt-events?timespan=7d&keyword=${encodeURIComponent(name)}`);
           const data = await res.json();
-          const articles:Article[] = data.articles||[];
+          const articles: Article[] = data.articles || [];
 
-          clickPopup.current!.setHTML(
-            `
+          // Choose badge text and color based on status
+          const statusText =
+            status === "red" ? "🔴 Active Conflict" :
+            status === "amber" ? "🟠 Heightened Tensions" :
+            status === "landmark" ? "🟣 Strategic Landmark" :
+            "";
+
+          const statusColor =
+            status === "red" ? "#b91c1c" :
+            status === "amber" ? "#c2410c" :
+            status === "landmark" ? "#8b5cf6" :
+            "#6b7280";
+
+          clickPopup.current!.setHTML(`
             <div style="max-width:340px; font-family: 'IBM Plex Mono', monospace; color:#111;">
               <strong style="font-size:14px; color:#111;">${name}</strong>
-              <div style="font-size:12px; margin:4px 0 6px 0; color:${status==="red"?"#b91c1c":"#c2410c"};">
-                ${status==="red"?"🔴 Active Conflict":"🟠 Heightened Tensions"}
-              </div>
-
-              <div style="font-size:12px; color:#111; margin-bottom:8px; line-height:1.4;">
-                ${description}
-              </div>
-
+              <div style="font-size:12px; margin:4px 0 6px 0; color:${statusColor};">${statusText}</div>
+              <div style="font-size:12px; color:#111; margin-bottom:8px; line-height:1.4;">${description}</div>
               ${
                 articles.length === 0
                   ? `<div style="color:#333; font-size:12px;">No recent articles</div>`
                   : `<div style="max-height:200px; overflow:auto; border-top:1px solid #ccc; padding-top:6px;">
-                      ${articles.slice(0,8).map(a=>{
-                        const d=parseGdeltDate(a.date);
-                        return `
-                          <div style="margin-bottom:8px;">
-                            <a href="${a.url}" target="_blank"
-                               style="color:#b91c1c; font-weight:600; font-size:12px;">
-                               ${a.title}
-                            </a>
-                            <div style="font-size:10px; color:#444;">
-                              ${a.source??""}${d?" • "+d.toLocaleString():""}
-                            </div>
-                          </div>
-                        `;
+                      ${articles.slice(0,8).map(a => {
+                        const d = parseGdeltDate(a.date);
+                        return `<div style="margin-bottom:8px;">
+                          <a href="${a.url}" target="_blank" style="color:${statusColor}; font-weight:600; font-size:12px;">${a.title}</a>
+                          <div style="font-size:10px; color:#444;">${a.source??""}${d?" • "+d.toLocaleString():""}</div>
+                        </div>`;
                       }).join("")}
                     </div>`
               }
             </div>
-            `
-          );
-        }catch{
-          clickPopup.current!.setHTML(`<div class="text-red-400">Failed to load updates</div>`);
+          `);
+        } catch {
+          clickPopup.current!.setHTML(`<div style="color:#b91c1c;">Failed to load updates</div>`);
         }
       });
         map.resize();
