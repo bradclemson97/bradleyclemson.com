@@ -191,29 +191,29 @@ export default function SituationRoomMap() {
 
           clickPopup.current!.setHTML(
             `
-            <div style="max-width:340px;">
-              <strong style="font-size:14px;">${name}</strong>
-              <div style="font-size:12px;margin:4px 0 6px 0;">
+            <div style="max-width:340px; font-family: 'IBM Plex Mono', monospace; color:#111;">
+              <strong style="font-size:14px; color:#111;">${name}</strong>
+              <div style="font-size:12px; margin:4px 0 6px 0; color:${status==="red"?"#b91c1c":"#c2410c"};">
                 ${status==="red"?"🔴 Active Conflict":"🟠 Heightened Tensions"}
               </div>
 
-              <div style="font-size:12px;color:#d1d5db;margin-bottom:8px;line-height:1.4;">
+              <div style="font-size:12px; color:#111; margin-bottom:8px; line-height:1.4;">
                 ${description}
               </div>
 
               ${
                 articles.length === 0
-                  ? `<div class="text-neutral-400 text-sm">No recent articles</div>`
-                  : `<div style="max-height:200px;overflow:auto;border-top:1px solid #333;padding-top:6px;">
+                  ? `<div style="color:#333; font-size:12px;">No recent articles</div>`
+                  : `<div style="max-height:200px; overflow:auto; border-top:1px solid #ccc; padding-top:6px;">
                       ${articles.slice(0,8).map(a=>{
                         const d=parseGdeltDate(a.date);
                         return `
                           <div style="margin-bottom:8px;">
                             <a href="${a.url}" target="_blank"
-                               style="color:#f87171;font-weight:600;font-size:12px;">
+                               style="color:#b91c1c; font-weight:600; font-size:12px;">
                                ${a.title}
                             </a>
-                            <div style="font-size:10px;color:#9ca3af;">
+                            <div style="font-size:10px; color:#444;">
                               ${a.source??""}${d?" • "+d.toLocaleString():""}
                             </div>
                           </div>
