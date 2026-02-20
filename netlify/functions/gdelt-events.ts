@@ -81,20 +81,54 @@ export const handler: Handler = async (event) => {
       "https://api.gdeltproject.org/api/v2/doc/doc" +
       `?query=${encodeURIComponent(query)}` +
       `&timespan=${timespan}` +
-      "&maxrecords=250" +
+      "&maxrecords=100" +
       "&format=json" +
       "&translation=auto";
 
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "SituationRoom/1.0",
-        Accept: "application/json",
-      },
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000); // 7s timeout
 
-    const data = await response.json();
+    let response;
 
-    if (!data.articles) {
+    try {
+      response = await fetch(url, {
+        headers: {
+          "User-Agent": "SituationRoom/1.0",
+          Accept: "application/json",
+        },
+        signal: controller.signal,
+      });
+    } catch (err: any) {
+      console.error("Network failure:", err?.code || err?.message);
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ countries: [], articles: [] }),
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!response.ok) {
+      console.error("GDELT HTTP error:", response.status);
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ countries: [], articles: [] }),
+      };
+    }
+
+    let data;
+
+    try {
+      data = await response.json();
+      if (!data?.articles || !Array.isArray(data.articles)) {
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ countries: [], articles: [] }),
+        };
+      }
+    } catch {
+      console.error("Invalid JSON from GDELT");
       return {
         statusCode: 200,
         body: JSON.stringify({ countries: [], articles: [] }),
