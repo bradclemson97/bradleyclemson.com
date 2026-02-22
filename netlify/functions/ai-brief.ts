@@ -3,7 +3,7 @@ import type { Handler } from "@netlify/functions";
 export const handler: Handler = async () => {
   try {
     const prompt = `
-Provide a concise intelligence-style geopolitical briefing (6–10 sentences).
+Provide a concise intelligence-style geopolitical briefing (2 sentences) of current world events today.
 
 Highlight:
 - Active conflicts
