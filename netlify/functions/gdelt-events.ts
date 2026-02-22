@@ -53,86 +53,84 @@ const COUNTRY_CODES: Record<string, string> = {
   "Ukraine / Russia": "UA,RU",
 };
 
-// Reverse mapping ISO code → country name
-const COUNTRY_CODES_REVERSE: Record<string, string> = Object.fromEntries(
-  Object.entries(COUNTRY_CODES).map(([name, code]) => [code, name])
-);
-
 export const handler: Handler = async (event) => {
   try {
-    const topic = event.queryStringParameters?.topic ?? "protest";
+    const topic = event.queryStringParameters?.topic ?? "PROTEST";
     const timespan = event.queryStringParameters?.timespan ?? "24h";
     const countryFilter = event.queryStringParameters?.country;
     const keyword = event.queryStringParameters?.keyword;
 
-    // ---------------- Build GDELT query ----------------
-    let query = topic;
+    // ---------------- BUILD PROPER GDELT QUERY ----------------
+    let query = `theme:${topic.toUpperCase()}`;
 
     if (keyword) {
+      // Free-text search
       query = keyword;
-    } else if (countryFilter) {
-      // If input is ISO code, map to full country name
-      const normalizedCountry =
-        COUNTRY_CODES_REVERSE[countryFilter.toUpperCase()] || countryFilter;
-      query = normalizedCountry;
+    }
+
+    if (countryFilter) {
+      // Accept:
+      // - ISO code (US)
+      // - Full country name ("United States")
+      // - Multi-country ("TH,KH")
+
+      let iso = countryFilter.toUpperCase();
+
+      // If full name provided, convert to ISO
+      if (COUNTRY_CODES[countryFilter]) {
+        iso = COUNTRY_CODES[countryFilter];
+      }
+
+      // Multi-country support
+      if (iso.includes(",")) {
+        const parts = iso.split(",");
+        query = parts
+          .map((c) => `sourcecountry:${c.trim()}`)
+          .join(" OR ");
+      } else {
+        query = `sourcecountry:${iso}`;
+      }
     }
 
     const url =
       "https://api.gdeltproject.org/api/v2/doc/doc" +
       `?query=${encodeURIComponent(query)}` +
+      "&mode=ArtList" +
       `&timespan=${timespan}` +
       "&maxrecords=100" +
-      "&format=json" +
-      "&translation=auto";
+      "&format=json";
+
+    console.log("GDELT URL:", url);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 7000); // 7s timeout
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
     let response;
 
     try {
       response = await fetch(url, {
         headers: {
-          "User-Agent": "SituationRoom/1.0",
           Accept: "application/json",
         },
         signal: controller.signal,
       });
     } catch (err: any) {
-      console.error("Network failure:", err?.code || err?.message);
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ countries: [], articles: [] }),
-      };
+      console.error("Network failure:", err?.message);
+      return emptyResponse();
     } finally {
       clearTimeout(timeout);
     }
 
     if (!response.ok) {
       console.error("GDELT HTTP error:", response.status);
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ countries: [], articles: [] }),
-      };
+      return emptyResponse();
     }
 
-    let data;
+    const data = await response.json();
 
-    try {
-      data = await response.json();
-      if (!data?.articles || !Array.isArray(data.articles)) {
-        return {
-          statusCode: 200,
-          body: JSON.stringify({ countries: [], articles: [] }),
-        };
-      }
-    } catch {
-      console.error("Invalid JSON from GDELT");
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ countries: [], articles: [] }),
-      };
+    if (!data?.articles || !Array.isArray(data.articles)) {
+      console.log("No articles returned");
+      return emptyResponse();
     }
 
     // ---------------- COUNTRY DRILLDOWN MODE ----------------
@@ -140,8 +138,9 @@ export const handler: Handler = async (event) => {
       const articles = data.articles.slice(0, 20).map((a: any) => ({
         title: a.title,
         url: a.url,
-        source: a.source,
+        domain: a.domain,
         date: a.seendate,
+        sourcecountry: a.sourcecountry,
       }));
 
       return {
@@ -153,16 +152,16 @@ export const handler: Handler = async (event) => {
 
     // ---------------- AGGREGATION MODE ----------------
     const countryCounts: Record<string, number> = {};
+
     for (const article of data.articles) {
       const c = article.sourcecountry;
       if (!c) continue;
       countryCounts[c] = (countryCounts[c] || 0) + 1;
     }
 
-    const countries = Object.entries(countryCounts).map(([country, count]) => ({
-      country,
-      count,
-    }));
+    const countries = Object.entries(countryCounts)
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count);
 
     return {
       statusCode: 200,
@@ -183,3 +182,14 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+function emptyResponse() {
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      totalArticles: 0,
+      countries: [],
+      articles: [],
+    }),
+  };
+}
