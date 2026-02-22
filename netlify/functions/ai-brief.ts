@@ -57,12 +57,15 @@ console.log(JSON.stringify(data, null, 2));
       statusCode: 200,
       body: JSON.stringify({ summary }),
     };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        summary: "AI briefing unavailable.",
-      }),
-    };
-  }
+  } catch (error: any) {
+      console.error("AI BRIEF ERROR:", error);
+
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          summary: "AI briefing unavailable.",
+          error: error?.message || "Unknown error"
+        }),
+      };
+    }
 };
