@@ -3,7 +3,7 @@ import { siteConfig } from "../config.ts";
 
 const hasProjects = siteConfig.projects && siteConfig.projects.length > 0;
 const hasExperience = siteConfig.experience && siteConfig.experience.length > 0;
-const hasInvestments = siteConfig.investments && siteConfig.investments.length > 0;
+const hasFinance = siteConfig.finance && siteConfig.finance.length > 0;
 ---
 
 <header
@@ -45,13 +45,13 @@ const hasInvestments = siteConfig.investments && siteConfig.investments.length >
         )
       }
       {
-        hasInvestments && (
+        hasFinance && (
           <li>
             <a
-              href="#investments"
+              href="#finance"
               class="text-gray-700 hover:text-black transition-colors font-medium"
             >
-              Investments
+              Finance
             </a>
           </li>
         )
