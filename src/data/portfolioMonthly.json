@@ -253,14 +253,47 @@
     "PORTFOLIO_AVG": 204.62
   },
   {
-    "date": "2025-12-19",
-    "AMZN": 46.49,
-    "MSFT": 24.04,
-    "GOOGL": 120.91,
-    "META": 70.02,
-    "NVDA": 194.33,
-    "PLTR": 1101.86,
-    "ASML": 24.07,
-    "PORTFOLIO_AVG": 225.96
+    "date": "2025-12-31",
+    "AMZN": 48.72,
+    "MSFT": 23.45,
+    "GOOGL": 125.11,
+    "META": 70.37,
+    "NVDA": 203.29,
+    "PLTR": 1004.72,
+    "ASML": 25.69,
+    "PORTFOLIO_AVG": 214.48
+  },
+  {
+    "date": "2026-01-30",
+    "AMZN": 54.19,
+    "MSFT": 9.84,
+    "GOOGL": 143.09,
+    "META": 84.92,
+    "NVDA": 210.81,
+    "PLTR": 811.06,
+    "ASML": 67.18,
+    "PORTFOLIO_AVG": 197.3
+  },
+  {
+    "date": "2026-02-27",
+    "AMZN": 35.31,
+    "MSFT": 0.48,
+    "GOOGL": 124.22,
+    "META": 67.29,
+    "NVDA": 188.15,
+    "PLTR": 752.64,
+    "ASML": 70.65,
+    "PORTFOLIO_AVG": 176.96
+  },
+  {
+    "date": "2026-03-30",
+    "AMZN": 29.48,
+    "MSFT": -8.16,
+    "GOOGL": 96.84,
+    "META": 38.55,
+    "NVDA": 168.61,
+    "PLTR": 754.88,
+    "ASML": 47.52,
+    "PORTFOLIO_AVG": 161.1
   }
 ]
