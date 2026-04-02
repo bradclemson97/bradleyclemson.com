@@ -25,7 +25,7 @@ export const siteConfig = {
       description:
         "Building a MCP (Model Context Protocol) server exposing data from a PostgreSQL database, connecting it to a smart assistant client.",
       link: "https://medium.com/@bradclemson/from-sql-to-smart-assistant-connecting-databases-to-ai-with-mcp-fbf79f752189",
-      skills: ["AI", "MCP", "Python"],
+      skills: ["Claude", "MCP", "Python"],
     },
     {
       name: "System User Management",
@@ -75,6 +75,14 @@ export const siteConfig = {
       title: "BSc. Business and Management",
       dateRange: "Sept 2015 - Jun 2019",
     },
+  ],
+  articles: [
+      {
+          title: "The Evolution of AI: Unleashing Prediction and Imagination",
+          description: "Personal thoughts on the next wave of AI adoption.",
+          link: "https://medium.com/version-1/the-evolution-of-ai-unleashing-prediction-and-imagination-26a3321a07cc",
+          date: "Sept 2023"
+      },
   ],
   finance: [
     {
