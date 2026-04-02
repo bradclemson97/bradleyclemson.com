@@ -3,6 +3,7 @@ import { siteConfig } from "../config.ts";
 
 const hasProjects = siteConfig.projects && siteConfig.projects.length > 0;
 const hasExperience = siteConfig.experience && siteConfig.experience.length > 0;
+const hasArticles = siteConfig.articles && siteConfig.articles.length > 0;
 const hasFinance = siteConfig.finance && siteConfig.finance.length > 0;
 ---
 
@@ -145,6 +146,15 @@ const hasFinance = siteConfig.finance && siteConfig.finance.length > 0;
                 class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Experience
+              </a>
+            )
+          }
+          {hasArticles && (
+              <a
+              href="#articles"
+              class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Articles
               </a>
             )
           }
