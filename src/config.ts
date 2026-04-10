@@ -10,11 +10,11 @@ export const siteConfig = {
     github: "https://github.com/bradclemson97",
   },
   aboutMe:
-    "I’m a full-stack developer with a masters degree in Computer Science and certifications in AWS, Azure and Palantir. I build scalable, intelligent systems and, outside work, a part-time investor with a tech-focused, long-term growth strategy. I research AI and quantum computing to stay on the cutting edge while closely following geopolitics to ground technological insight in global context. My work sits at the intersection of engineering excellence, emerging tech, and strategic perspective.",
+    "I’m a full-stack developer specialising in the design and development of intelligent, scalable systems. Experienced in government and defense, I operate in high-stakes environments where reliability, security, and innovation are critical. My work sits at the intersection of engineering excellence, emerging technologies, and strategic insight - combining deep technical capability with a clear understanding of the forces shaping the future.",
   skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
      {
-      name: "The Situation Room",
+      name: "Global Monitor",
       description:
         "Near real-time monitoring of global events, geopolitical tensions, and emerging risks.",
       link: "https://bradleyclemson.com/situation-room",
@@ -91,7 +91,6 @@ export const siteConfig = {
       dateRange: "2024 - present",
       achievements: [
         "A diversified long-term growth portfolio focused on market-leading technology and innovation.",
-        "Holdings include Amazon, Microsoft, Alphabet, Meta, NVIDIA, Palantir and ASML.",
         "Represents leadership across cloud computing, artificial intelligence, digital platforms, and semiconductor technology.",
       ],
     },
