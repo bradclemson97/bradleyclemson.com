@@ -1,4 +1,9 @@
 export const siteConfig = {
+  exploreMoreProjects: "https://github.com/bradclemson97",
+  exploreMoreArticles: "https://medium.com/@bradclemson",
+  projects: [ /* ... */ ],
+  articles: [ /* ... */ ],
+
   name: "Bradley Clemson",
   title: "Full Stack Developer",
   description: "Portfolio website of Bradley Clemson",
@@ -33,13 +38,6 @@ export const siteConfig = {
         "A comprehensive User Management and RBAC (Role-based Access Control) solution. Fully scalable and secure with Keycloak IAM.",
       link: "https://github.com/bradclemson97/user-management-service",
       skills: ["IAM", "RBAC", "Keycloak"],
-    },
-    {
-      name: "Spring AI",
-      description:
-        "Exploring the practical application of generative AI in a Spring Boot application with Spring AI.",
-      link: "https://github.com/bradclemson97/spring-ai-example",
-      skills: ["Java", "Spring", "AI"],
     },
     {
       name: "IoT Aware",
@@ -82,6 +80,12 @@ export const siteConfig = {
           description: "Personal thoughts on the next wave of AI adoption.",
           link: "https://medium.com/version-1/the-evolution-of-ai-unleashing-prediction-and-imagination-26a3321a07cc",
           date: "Sept 2023"
+      },
+      {
+          title: "Building a Generative AI Application with Spring AI",
+          description: "In this tutorial, we will explore the practical application of generative AI in a Spring Boot application with Spring AI.",
+          link: "https://medium.com/version-1/building-a-generative-ai-application-with-spring-ai-dce717e38526",
+          date: "Jan 2024"
       },
   ],
   finance: [
