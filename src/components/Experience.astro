@@ -8,6 +8,7 @@ const hasExperience = experience.length > 0;
   <section id="experience" class="p-8 sm:p-12 md:p-16 lg:p-24">
     <div>
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        {/* Left Column: Title */}
         <div class="lg:col-span-4">
           <h2 class="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-bold text-gray-900">
             Experience
@@ -18,46 +19,65 @@ const hasExperience = experience.length > 0;
           />
         </div>
 
+        {/* Right Column: Experience Cards */}
         <div class="lg:col-span-8">
           <div class="relative">
             {experience.map((exp, index) => (
               <div class="relative mb-12 last:mb-0" key={index}>
-                {/* Timeline dot at top of card */}
+                {/* Timeline dot */}
                 <div
                   class="absolute left-1/2 -top-2 w-4 h-4 bg-white border-2 rounded-full -translate-x-1/2 z-20 transition-all duration-300"
                   style={`border-color: ${siteConfig.accentColor}; background-color: ${siteConfig.accentColor}`}
                 />
 
-                {/* Connecting line below card */}
+                {/* Connecting line (hidden for the last item) */}
                 {index < experience.length - 1 && (
                   <div class="absolute left-1/2 bottom-0 w-0.5 h-12 bg-gray-300 -translate-x-1/2 translate-y-full z-10" />
                 )}
 
-                {/* Experience card */}
+                {/* Experience Card */}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6 hover:shadow-md transition-shadow duration-300">
-                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                     <div>
                       <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
                         {exp.title}
                       </h3>
-                      <p
-                        class="text-base sm:text-lg"
-                        style={`color: ${siteConfig.accentColor}`}
-                      >
-                        {exp.company}
-                      </p>
+
+                      {/* Company & Client Flex Container */}
+                      <div class="flex flex-wrap items-center gap-x-2">
+                        <p
+                          class="text-base sm:text-lg font-medium"
+                          style={`color: ${siteConfig.accentColor}`}
+                        >
+                          {exp.company}
+                        </p>
+
+                        {exp.client && (
+                          <>
+                            <span class="text-gray-400 text-sm hidden sm:inline">•</span>
+                            <p class="text-sm sm:text-base text-gray-600 italic">
+                              Client: {exp.client}
+                            </p>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <span class="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-0">
+
+                    <span class="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-0 font-mono">
                       {exp.dateRange}
                     </span>
                   </div>
 
+                  {/* Bullet Points */}
                   {exp.bullets && exp.bullets.length > 0 && (
                     <ul class="space-y-2">
                       {exp.bullets.map((bullet, bulletIndex) => (
                         <li class="flex items-start" key={bulletIndex}>
-                          <span class="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 mr-3 flex-shrink-0" />
-                          <span class="text-sm sm:text-base text-gray-600">
+                          <span
+                            class="inline-block w-1.5 h-1.5 rounded-full mt-2 mr-3 flex-shrink-0"
+                            style={`background-color: ${siteConfig.accentColor}80`}
+                          />
+                          <span class="text-sm sm:text-base text-gray-600 leading-relaxed">
                             {bullet}
                           </span>
                         </li>

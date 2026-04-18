@@ -51,16 +51,19 @@ export const siteConfig = {
     {
       company: "Accenture",
       title: "Full Stack Developer",
+      client: "Ministry of Defence",
       dateRange: "Aug 2025 - Present",
     },
     {
       company: "Version 1",
       title: "Java Developer",
+      client: "Home Office",
       dateRange: "Aug 2022 - Aug 2025",
     },
     {
       company: "Capgemini",
       title: "Software Developer",
+      client: "HMRC",
       dateRange: "Sept 2020 - Aug 2022",
     },
     {
