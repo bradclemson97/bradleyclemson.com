@@ -16,7 +16,7 @@ export const siteConfig = {
   },
   aboutMe:
     "I’m a full-stack developer specialising in the design and development of intelligent, scalable systems. Experienced in government and defense, I operate in high-stakes environments where reliability, security, and innovation are critical. My work sits at the intersection of engineering excellence, emerging technologies, and strategic insight - combining deep technical capability with a clear understanding of the forces shaping the future.",
-  skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Docker", "AWS", "Azure", "Palantir"],
+  skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Terraform", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
      {
       name: "Global Monitor",
@@ -26,18 +26,18 @@ export const siteConfig = {
       skills: ["TypeScript", "React", "Geopolitics"],
     },
     {
-      name: "Employee Smart Assistant",
+      name: "Defence Intelligence Workstation",
       description:
-        "Building a MCP (Model Context Protocol) server exposing data from a PostgreSQL database, connecting it to a smart assistant client.",
-      link: "https://medium.com/@bradclemson/from-sql-to-smart-assistant-connecting-databases-to-ai-with-mcp-fbf79f752189",
-      skills: ["Claude", "MCP", "Python"],
+        "Enabling analysis of sensitive mission documents using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) with 100% data sovereignty.",
+      link: "https://github.com/bradclemson97/local-llm",
+      skills: ["LLM", "RAG", "Python"],
     },
     {
       name: "System User Management",
       description:
         "A comprehensive User Management and RBAC (Role-based Access Control) solution. Fully scalable and secure with Keycloak IAM.",
       link: "https://github.com/bradclemson97/user-management-service",
-      skills: ["IAM", "RBAC", "Keycloak"],
+      skills: ["Java", "RBAC", "Keycloak"],
     },
     {
       name: "IoT Aware",
@@ -79,16 +79,22 @@ export const siteConfig = {
   ],
   articles: [
       {
-          title: "The Evolution of AI: Unleashing Prediction and Imagination",
-          description: "Personal thoughts on the next wave of AI adoption.",
-          link: "https://medium.com/version-1/the-evolution-of-ai-unleashing-prediction-and-imagination-26a3321a07cc",
-          date: "Sept 2023"
+          title: "From SQL to Smart Assistant: Connecting Databases to AI with MCP",
+          description: "See how the Model Context Protocol lets AI go beyond chat and actually use your data.",
+          link: "https://medium.com/@bradclemson/from-sql-to-smart-assistant-connecting-databases-to-ai-with-mcp-fbf79f752189",
+          date: "Aug 2025"
       },
       {
           title: "Building a Generative AI Application with Spring AI",
           description: "In this tutorial, we will explore the practical application of generative AI in a Spring Boot application with Spring AI.",
           link: "https://medium.com/version-1/building-a-generative-ai-application-with-spring-ai-dce717e38526",
           date: "Jan 2024"
+      },
+      {
+          title: "The Evolution of AI: Unleashing Prediction and Imagination",
+          description: "Personal thoughts on the next wave of AI adoption.",
+          link: "https://medium.com/version-1/the-evolution-of-ai-unleashing-prediction-and-imagination-26a3321a07cc",
+          date: "Sept 2023"
       },
   ],
   finance: [
