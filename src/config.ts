@@ -21,7 +21,7 @@ export const siteConfig = {
     {
       name: "Tactical Intelligence Workstation",
       description:
-        "Enabling analysis of sensitive mission documents using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) with 100% data sovereignty.",
+        "Secure, air-gapped-ready intelligence workstation, enabling local processing of tactical intelligence, doctrine-aware reasoning, and visual analysis, using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG).",
       link: "https://bradleyclemson.com/tactical-intelligence-workstation",
       skills: ["LLM", "RAG", "Python"],
     },
