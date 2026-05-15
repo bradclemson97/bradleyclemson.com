@@ -18,19 +18,19 @@ export const siteConfig = {
     "I’m a full-stack developer specialising in the design and development of intelligent, scalable systems. Experienced in government and defense, I operate in high-stakes environments where reliability, security, and innovation are critical. My work sits at the intersection of engineering excellence, emerging technologies, and strategic insight - combining deep technical capability with a clear understanding of the forces shaping the future.",
   skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Terraform", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
-     {
+    {
+      name: "Tactical Intelligence Workstation",
+      description:
+        "Secure, air-gapped-ready intelligence workstation, enabling local processing of tactical intelligence, doctrine-aware reasoning, and visual analysis, using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG).",
+      link: "https://bradleyclemson.com/tactical-intelligence-workstation",
+      skills: ["LLM", "RAG", "Python"],
+    },
+    {
       name: "Global Monitor",
       description:
         "Near real-time monitoring of global events, geopolitical tensions, and emerging risks.",
       link: "https://bradleyclemson.com/situation-room",
       skills: ["TypeScript", "React", "Geopolitics"],
-    },
-    {
-      name: "Defence Intelligence Workstation",
-      description:
-        "Enabling analysis of sensitive mission documents using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) with 100% data sovereignty.",
-      link: "https://github.com/bradclemson97/local-llm",
-      skills: ["LLM", "RAG", "Python"],
     },
     {
       name: "System User Management",

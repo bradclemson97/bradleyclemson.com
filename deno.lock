@@ -11,16 +11,16 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@astrojs/react@^5.0.2",
+        "npm:@astrojs/react@^5.0.5",
         "npm:@netlify/functions@^5.1.2",
         "npm:@tailwindcss/vite@^4.1.11",
         "npm:@types/react-dom@^19.2.3",
         "npm:@types/react@^19.2.14",
         "npm:astro@^5.12.3",
-        "npm:maplibre-gl@^5.21.1",
+        "npm:maplibre-gl@^5.24.0",
         "npm:netlify-cli@^23.15.1",
-        "npm:react-dom@^19.2.4",
-        "npm:react@^19.2.4",
+        "npm:react-dom@^19.2.6",
+        "npm:react@^19.2.6",
         "npm:tailwindcss@^4.1.11",
         "npm:ts-node@^10.9.2",
         "npm:typescript@^5.9.3"
