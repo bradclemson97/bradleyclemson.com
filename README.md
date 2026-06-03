@@ -22,7 +22,7 @@ The template uses [Tabler Icons](https://tabler.io/icons) for all icons. If you 
 If you'd like to run it locally:
 
 ```
-git clone https://github.com/RyanFitzgerald/devportfolio.git
+git clone https://github.com/bradclemson97/bradleyclemson.com.git
 cd devportfolio
 npm install
 npm install -D netlify-cli

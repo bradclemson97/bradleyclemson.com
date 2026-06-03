@@ -15,7 +15,7 @@ export const siteConfig = {
     github: "https://github.com/bradclemson97",
   },
   aboutMe:
-    "I’m a full-stack developer specialising in the design and development of intelligent, scalable systems. Experienced in government and defense, I operate in high-stakes environments where reliability, security, and innovation are critical. My work sits at the intersection of engineering excellence, emerging technologies, and strategic insight - combining deep technical capability with a clear understanding of the forces shaping the future.",
+    "I’m a full-stack developer specialising in the design and development of intelligent, scalable systems. Experienced in government and defence, I operate in high-stakes environments where reliability, security, and innovation are critical. My work sits at the intersection of engineering excellence, emerging technologies, and strategic insight - combining deep technical capability with a clear understanding of the forces shaping the future.",
   skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Terraform", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
     {
