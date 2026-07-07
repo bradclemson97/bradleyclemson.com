@@ -26,9 +26,16 @@ export const siteConfig = {
       skills: ["LLM", "RAG", "Python"],
     },
     {
-      name: "Global Monitor",
+      name: "Project Argus",
       description:
-        "Near real-time monitoring of global events, geopolitical tensions, and emerging risks.",
+        "An advanced Visual Intelligence and Forensic Analysis platform, runs geospatial clustering engines to surface high-priority leads.",
+      link: "https://github.com/bradclemson97/argus",
+      skills: ["Python", "Typescript", "VLM"],
+    },
+    {
+      name: "NATO Eastern Flank Monitor",
+      description:
+        "Near real-time monitoring of military activity, hybrid threats, and geopolitical developments across Ukraine, Russia, the Baltic states, Poland, and Belarus.",
       link: "https://bradleyclemson.com/situation-room",
       skills: ["TypeScript", "React", "Geopolitics"],
     },

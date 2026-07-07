@@ -12,7 +12,7 @@ import "../styles/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Near real-time global events and geopolitical tensions powered by GDELT." />
+    <meta name="description" content="Near real-time monitoring of NATO's eastern flank — Ukraine, the Baltic states, Poland, and Russia — powered by GDELT." />
 
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,10 +33,13 @@ import "../styles/global.css";
         <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-white">
           The Situation Room
         </h1>
+        <p class="mt-1 text-xs text-red-500 tracking-widest uppercase">
+          NATO Eastern Flank Monitor
+        </p>
 
         <p class="mt-2 text-sm md:text-base text-neutral-400 max-w-2xl">
-          Near real-time monitoring of global events, geopolitical tensions,
-          and emerging risks — powered by GDELT.
+          Near real-time monitoring of military activity, hybrid threats, and geopolitical developments
+          across Ukraine, Russia, the Baltic states (Estonia, Latvia, Lithuania), Poland, and Belarus — powered by GDELT.
         </p>
       </header>
 
@@ -51,6 +54,8 @@ import "../styles/global.css";
 
       <!-- OSINT Feed -->
       <section class="mt-10">
+        <h2 class="text-lg font-semibold text-white mb-1">Eastern Flank OSINT Feed</h2>
+        <p class="text-xs text-neutral-500 mb-4 tracking-wide">GDELT · refreshes every 2 minutes · click any article to open source</p>
         <OsintFeed client:load />
       </section>
 
