@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 
 const zones = [
   { label: "Washington", tz: "America/New_York" },
-  { label: "London", tz: "Europe/London" },
-  { label: "Riyadh", tz: "Asia/Riyadh" },
-  { label: "Beijing", tz: "Asia/Shanghai" },
+  { label: "Brussels (NATO)", tz: "Europe/Brussels" },
+  { label: "Warsaw / Kyiv", tz: "Europe/Warsaw" },
+  { label: "Moscow", tz: "Europe/Moscow" },
 ];
 
 function formatTime(timeZone: string) {
@@ -30,25 +30,15 @@ function formatTime(timeZone: string) {
 
 export default function WorldClock() {
   const [times, setTimes] = useState(
-    zones.map(z => ({
-      ...z,
-      ...formatTime(z.tz),
-    }))
+    zones.map(z => ({ ...z, ...formatTime(z.tz) }))
   );
-
   const [utc, setUtc] = useState(formatTime("UTC"));
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimes(
-        zones.map(z => ({
-          ...z,
-          ...formatTime(z.tz),
-        }))
-      );
+      setTimes(zones.map(z => ({ ...z, ...formatTime(z.tz) })));
       setUtc(formatTime("UTC"));
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -58,31 +48,24 @@ export default function WorldClock() {
 
         {/* UTC Highlight */}
         <div className="text-center md:text-left border-r border-neutral-800 pr-4">
-          <div className="text-xs text-red-500 tracking-widest uppercase">
-            UTC
-          </div>
-          <div className="text-xl font-mono text-white">
-            {utc.time}
-          </div>
-          <div className="text-[11px] text-neutral-500">
-            {utc.date}
-          </div>
+          <div className="text-xs text-red-500 tracking-widest uppercase">UTC</div>
+          <div className="text-xl font-mono text-white">{utc.time}</div>
+          <div className="text-[11px] text-neutral-500">{utc.date}</div>
         </div>
 
         {/* Regional Clocks */}
-        {times.map(({ label, time, date }) => (
+        {times.map(({ label, time, date }, i) => (
           <div key={label} className="text-center">
-            <div className="text-xs text-neutral-400 tracking-widest uppercase">
+            <div className={`text-xs tracking-widest uppercase ${
+              label === "Moscow" ? "text-red-400" : "text-neutral-400"
+            }`}>
               {label}
             </div>
-            <div className="text-lg font-mono text-white">
-              {time}
-            </div>
-            <div className="text-[11px] text-neutral-500">
-              {date}
-            </div>
+            <div className="text-lg font-mono text-white">{time}</div>
+            <div className="text-[11px] text-neutral-500">{date}</div>
           </div>
         ))}
+
       </div>
     </div>
   );

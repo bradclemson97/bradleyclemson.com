@@ -24,7 +24,7 @@ export default function AiBrief() {
     <div className="border-t border-b border-neutral-800 bg-neutral-950/70 px-6 py-6">
       <div className="max-w-4xl mx-auto">
         <div className="text-xs text-red-500 tracking-widest uppercase mb-2">
-          AI Daily Geopolitical Brief
+          AI NATO Eastern Flank Intelligence Brief
         </div>
 
         <div className="text-sm md:text-base text-neutral-300 leading-relaxed font-light">
