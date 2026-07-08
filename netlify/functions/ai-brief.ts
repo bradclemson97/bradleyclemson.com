@@ -1,12 +1,16 @@
 import type { Handler } from "@netlify/functions";
 
-export const handler: Handler = async () => {
-  try {
-    if (!process.env.GOOGLE_AI_KEY) {
-      throw new Error("Missing GOOGLE_AI_KEY environment variable");
-    }
+const GROQ_KEY = process.env.GROQ_API_KEY;
 
-    const prompt = `You are an intelligence analyst specializing in European security and NATO's eastern flank.
+export const handler: Handler = async () => {
+  if (!GROQ_KEY) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ summary: "GROQ_API_KEY environment variable not set." }),
+    };
+  }
+
+  const prompt = `You are an intelligence analyst specializing in European security and NATO's eastern flank.
 
 Provide a concise intelligence-style briefing (3-4 complete sentences) focused specifically on the current situation along NATO's eastern flank. Address:
 - The Russia-Ukraine conflict: front-line developments, battlefield posture, and escalation indicators
@@ -14,49 +18,47 @@ Provide a concise intelligence-style briefing (3-4 complete sentences) focused s
 - Any hybrid warfare activity: cyberattacks, information operations, border provocations, or energy coercion targeting eastern flank NATO members
 - Kaliningrad or Belarus developments relevant to NATO security
 
-Tone: neutral, analytical, professional — written as an intelligence product, not a news summary. Do not speculate. All sentences must be complete.
+Tone: neutral, analytical, professional — written as an intelligence product, not a news summary. All sentences must be complete. Do not mention that you are an AI.
 
 Date context: ${new Date().toUTCString()}`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GOOGLE_AI_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 450,
-          },
-        }),
-      }
-    );
-
-    const raw = await response.text();
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GROQ_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 450,
+      }),
+    });
 
     if (!response.ok) {
-      console.error("GOOGLE AI ERROR:", raw);
+      const raw = await response.text();
+      console.error("Groq error:", response.status, raw);
       return {
-        statusCode: response.status,
-        body: JSON.stringify({ summary: "Intelligence brief unavailable.", details: raw }),
+        statusCode: 200,
+        body: JSON.stringify({ summary: "Intelligence brief temporarily unavailable." }),
       };
     }
 
-    const parsed = JSON.parse(raw);
-    const summary =
-      parsed?.candidates?.[0]?.content?.parts?.[0]?.text ?? "No briefing generated.";
+    const data = await response.json();
+    const summary = data?.choices?.[0]?.message?.content ?? "No briefing generated.";
 
     return {
       statusCode: 200,
       headers: { "Cache-Control": "public, max-age=3600" },
       body: JSON.stringify({ summary }),
     };
-  } catch (error: any) {
-    console.error("AI BRIEF CRASH:", error);
+  } catch (err: any) {
+    console.error("AI brief crash:", err);
     return {
-      statusCode: 500,
-      body: JSON.stringify({ summary: "AI briefing unavailable.", error: error?.message }),
+      statusCode: 200,
+      body: JSON.stringify({ summary: "Intelligence brief temporarily unavailable." }),
     };
   }
 };
