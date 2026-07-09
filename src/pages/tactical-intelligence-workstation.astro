@@ -1,5 +1,4 @@
 ---
-import { siteConfig } from "../config.ts";
 import "../styles/global.css";
 ---
 
@@ -8,285 +7,484 @@ import "../styles/global.css";
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="Secure, air-gapped-ready tactical intelligence workstation for local processing, doctrine-aware reasoning, and data sovereignty." />
+    <meta name="description" content="Secure, air-gapped-ready tactical intelligence workstation for local LLM inference, doctrine-aware reasoning, and full data sovereignty." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>Tactical Intelligence Workstation | Defence Node</title>
-  </head>
-  <body class="bg-slate-950 text-slate-100 font-mono antialiased selection:bg-emerald-500 selection:text-slate-950">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Tactical Intelligence Workstation</title>
+    <style>
+      :root {
+        --accent: #22d3ee;        /* cyan-400 */
+        --accent-dim: #0e7490;    /* cyan-700 */
+        --amber: #f59e0b;
+        --red: #ef4444;
+        --surface: #080f1b;
+        --border: #1e2d3d;
+        --border-strong: #2d4055;
+      }
 
-    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur fixed top-0 left-0 right-0 z-50 w-full">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2">
-            <div class="w-2.5 h-2.5 bg-emerald-500 rounded-xs rotate-45 animate-pulse"></div>
-            <span class="text-xs font-bold tracking-widest text-white uppercase">DEFENCE NODE // CORE</span>
+      body {
+        background-color: #030b14;
+        color: #cbd5e1;
+        font-family: 'IBM Plex Mono', monospace;
+      }
+
+      /* Subtle dot-grid texture */
+      .dot-grid {
+        background-image: radial-gradient(circle, #1e2d3d 1px, transparent 1px);
+        background-size: 28px 28px;
+      }
+
+      /* Scanline overlay */
+      .scanlines::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 2px,
+          rgba(0,0,0,0.08) 2px,
+          rgba(0,0,0,0.08) 4px
+        );
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      /* Glowing accent border on hover */
+      .card-hover {
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .card-hover:hover {
+        border-color: var(--accent-dim);
+        box-shadow: 0 0 0 1px #0e749030, inset 0 0 30px #0e749008;
+      }
+
+      /* Accent left-border on SOP steps */
+      .sop-step {
+        border-left: 2px solid var(--border-strong);
+        transition: border-color 0.2s;
+      }
+      .sop-step:hover {
+        border-left-color: var(--accent);
+      }
+
+      .tag {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 2px;
+      }
+
+      .glow-text {
+        text-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+      }
+    </style>
+  </head>
+
+  <body class="antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Classification strip -->
+    <div class="bg-amber-950/60 border-b border-amber-900/50 text-amber-400/80 text-[9px] font-bold tracking-widest uppercase text-center py-1 px-4">
+      FOR OFFICIAL USE ONLY &nbsp;·&nbsp; FOUO &nbsp;·&nbsp; DISTRIBUTION AUTHORIZED TO OPERATIONAL PERSONNEL ONLY
+    </div>
+
+    <!-- Fixed header -->
+    <header class="border-b border-[#1e2d3d] bg-[#030b14]/90 backdrop-blur-md fixed top-7 left-0 right-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
+
+        <!-- Left: system identity -->
+        <div class="flex items-center gap-5">
+          <div class="flex items-center gap-2.5">
+            <div class="relative w-2 h-2">
+              <span class="absolute inset-0 bg-cyan-400 rounded-full animate-ping opacity-60"></span>
+              <span class="absolute inset-0 bg-cyan-400 rounded-full"></span>
+            </div>
+            <span class="text-[10px] font-bold tracking-[0.2em] text-white uppercase">
+              Defence Node <span class="text-cyan-500 mx-1">//</span> Core
+            </span>
           </div>
-          <div class="hidden sm:inline-flex items-center gap-2 border-l border-slate-800 pl-4">
-            <span class="text-[10px] font-medium tracking-wider text-emerald-400 uppercase bg-emerald-950/40 border border-emerald-900/60 px-2 py-0.5 rounded">SYS_STATUS: SECURE</span>
+
+          <div class="hidden sm:flex items-center gap-3 border-l border-[#1e2d3d] pl-5 text-[9px] tracking-widest text-slate-500 uppercase font-medium">
+            <span class="text-emerald-400 font-bold">● INFERENCE: LOCAL</span>
+            <span class="text-slate-600">|</span>
+            <span>TELEMETRY: NONE</span>
+            <span class="text-slate-600">|</span>
+            <span>SOVEREIGNTY: FULL</span>
           </div>
         </div>
 
-        <nav class="hidden md:flex items-center gap-6 text-[11px] uppercase tracking-widest text-slate-400 font-medium">
-          <a href="#capabilities" class="hover:text-emerald-400 transition-colors">Capabilities</a>
-          <a href="#demo" class="hover:text-emerald-400 transition-colors">Demo</a>
-          <a href="#sop" class="hover:text-emerald-400 transition-colors">SOP</a>
-          <a href="#opsec" class="hover:text-emerald-400 transition-colors">OPSEC</a>
-        </nav>
-
-        <div>
-          <a href="/" class="text-xs border border-slate-800 bg-slate-950 px-3 py-1.5 rounded text-slate-400 hover:border-emerald-500 hover:text-emerald-400 transition-all font-bold tracking-wide">
-            &larr; PORTFOLIO
+        <!-- Right: nav + back -->
+        <div class="flex items-center gap-6">
+          <nav class="hidden md:flex items-center gap-6 text-[10px] uppercase tracking-widest text-slate-500 font-medium">
+            <a href="#capabilities" class="hover:text-cyan-400 transition-colors duration-150">Capabilities</a>
+            <a href="#demo" class="hover:text-cyan-400 transition-colors duration-150">Demo</a>
+            <a href="#sop" class="hover:text-cyan-400 transition-colors duration-150">SOP</a>
+            <a href="#opsec" class="hover:text-cyan-400 transition-colors duration-150">OPSEC</a>
+            <a href="#deploy" class="hover:text-cyan-400 transition-colors duration-150">Deploy</a>
+          </nav>
+          <a href="/" class="text-[10px] border border-[#1e2d3d] bg-[#080f1b] px-3 py-1.5 text-slate-400 hover:border-cyan-700 hover:text-cyan-400 transition-all font-bold tracking-widest uppercase">
+            ← Portfolio
           </a>
         </div>
       </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 space-y-16">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-36 pb-20 space-y-12">
 
-      <section class="border border-slate-800 bg-linear-to-b from-slate-900/40 to-slate-950 rounded-xl p-6 sm:p-8 relative overflow-hidden w-full shadow-2xl">
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-25 pointer-events-none"></div>
+      <!-- ─── HERO ──────────────────────────────────────────────────── -->
+      <section class="relative border border-[#1e2d3d] bg-[#080f1b] overflow-hidden dot-grid scanlines">
+        <!-- Corner accents -->
+        <div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500/60"></div>
+        <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/60"></div>
+        <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-cyan-500/20"></div>
+        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/20"></div>
 
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-slate-800 relative z-10">
-          <div class="space-y-3">
-            <div class="inline-flex items-center gap-2 text-[10px] font-bold text-amber-400 bg-amber-950/30 border border-amber-900/60 px-2.5 py-1 rounded tracking-widest uppercase">
-              CLASSIFICATION: FOUO // INTERNAL OPERATIONAL USE ONLY
+        <!-- Top metadata bar -->
+        <div class="relative z-10 border-b border-[#1e2d3d] px-6 sm:px-8 py-2 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <span class="tag bg-cyan-950/60 text-cyan-400 border border-cyan-900/60">System v2.4</span>
+            <span class="tag bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">Operational</span>
+          </div>
+          <span class="text-[9px] text-slate-600 tracking-widest hidden sm:block">SYS_ID: TIW-CORE-0041</span>
+        </div>
+
+        <div class="relative z-10 p-6 sm:p-10 space-y-6">
+          <div class="space-y-1">
+            <div class="text-[9px] font-bold tracking-[0.2em] text-cyan-500 uppercase mb-3">
+              01 // System Overview
             </div>
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white uppercase font-mono">
-              🛡️ Tactical Intelligence Workstation
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white uppercase leading-tight glow-text">
+              Tactical Intelligence<br/>Workstation
             </h1>
+            <p class="text-xs text-slate-500 tracking-widest uppercase mt-2">Air-Gapped Local LLM Infrastructure for Defence Operations</p>
           </div>
 
-          <div class="flex-shrink-0 bg-slate-950 border border-slate-800 p-2.5 rounded-xl shadow-inner flex items-center justify-center w-20 h-20 relative">
-            <img
-              src="/images/tactical-workstation-icon.png"
-              alt="Tactical Intelligence Workstation Logo"
-              class="w-full h-full object-contain z-10 rounded-lg"
-              onerror="this.style.display='none'; document.getElementById('fallback-logo-svg').classList.remove('hidden');"
-            />
-            <div id="fallback-logo-svg" class="hidden absolute inset-0 flex items-center justify-center bg-slate-950 rounded-xl">
-              <svg class="w-10 h-10 text-emerald-500/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.5-3h15M3.75 9h16.5M3 12h18M3.75 15h16.5M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-6 space-y-6 relative z-10">
-          <p class="text-slate-300 text-sm sm:text-base leading-relaxed text-justify w-full font-normal">
-            Meet your secure, air-gapped-ready intelligence workstation. The terminal enables local processing of tactical intelligence, doctrine-aware reasoning, and visual analysis. All operations are performed 100% locally on your hardware using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) with 100% data sovereignty.
+          <p class="text-sm text-slate-300 leading-relaxed max-w-2xl font-light">
+            A secure, air-gapped-ready intelligence workstation enabling on-device processing of tactical intelligence, doctrine-aware reasoning, and visual analysis. All inference executes locally on operator hardware — no external API calls, no telemetry, no cloud dependency — with complete data sovereignty.
           </p>
-          <div class="flex flex-wrap gap-4 pt-2">
-            <a href="#download" class="px-5 py-2.5 text-xs uppercase font-bold rounded bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.25)]">
-              Request Deployment Build &darr;
+
+          <div class="flex flex-wrap gap-3 pt-2">
+            <a href="#deploy"
+               class="px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest bg-cyan-500 text-slate-950 hover:bg-cyan-400 transition-colors shadow-[0_0_24px_rgba(34,211,238,0.3)]">
+              Request Deployment Build
             </a>
-            <a href="#demo" class="px-5 py-2.5 text-xs uppercase font-bold rounded border border-slate-800 bg-slate-950 text-slate-300 hover:text-white hover:border-slate-600 transition-all tracking-wider">
-              System Demonstration Video
+            <a href="#demo"
+               class="px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest border border-[#2d4055] bg-transparent text-slate-300 hover:border-cyan-700 hover:text-cyan-400 transition-all">
+              System Demonstration
             </a>
           </div>
         </div>
       </section>
 
-      <section id="demo" class="border border-slate-800 bg-slate-900/10 rounded-xl p-4 sm:p-6 space-y-4 w-full shadow-lg">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 class="text-xs font-bold uppercase tracking-widest text-white flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-            <span>📺 Live Operational Demonstration</span>
-          </h2>
-          <span class="text-[10px] text-slate-500 font-mono hidden sm:inline tracking-wider">REF_ID: dLnUTrfEkYw.SYS</span>
-        </div>
-        <div class="aspect-video w-full rounded-lg overflow-hidden bg-black border border-slate-900 shadow-2xl relative">
-          <iframe
-            class="w-full h-full border-0 absolute inset-0"
-            src="https://www.youtube.com/embed/dLnUTrfEkYw"
-            title="Tactical Intelligence Workstation Demonstration"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
-          </iframe>
-        </div>
-      </section>
-
-      <section id="capabilities" class="space-y-4 w-full">
-        <div class="flex items-center gap-2 px-1">
-          <span class="text-emerald-500 font-bold">//</span>
-          <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-400">Active Capability Matrix</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-5 rounded-xl border border-slate-800 bg-slate-900/20 space-y-2.5 hover:border-slate-700 transition-all group">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
-              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Tactical RAG
-            </h3>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Ingest mission SITREPs, orders, and maps for instant retrieval and contextual structural analysis.
-            </p>
+      <!-- ─── SYSTEM METRICS STRIP ──────────────────────────────────── -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 border border-[#1e2d3d] divide-x divide-[#1e2d3d] bg-[#080f1b]">
+        {[
+          { label: "Inference Mode", value: "100% Local", accent: true },
+          { label: "Cloud Dependency", value: "Zero", accent: false },
+          { label: "Data Egress", value: "None", accent: false },
+          { label: "Network Required", value: "Offline Capable", accent: false },
+        ].map(m => (
+          <div class="px-5 py-4">
+            <div class="text-[9px] tracking-widest text-slate-600 uppercase mb-1">{m.label}</div>
+            <div class={`text-sm font-bold ${m.accent ? "text-cyan-400" : "text-slate-200"}`}>{m.value}</div>
           </div>
+        ))}
+      </div>
 
-          <div class="p-5 rounded-xl border border-slate-800 bg-slate-900/20 space-y-2.5 hover:border-slate-700 transition-all group">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
-              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Doctrine-Aware Reasoning
-            </h3>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Automated cross-referencing of tactical data assets against MOD JSPs and active rules of engagement (ROE).
-            </p>
+      <!-- ─── DEMONSTRATION ─────────────────────────────────────────── -->
+      <section id="demo" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-[9px] font-bold tracking-[0.2em] text-cyan-500 uppercase">02 // Operational Demo</span>
+            <span class="flex items-center gap-1.5 tag bg-red-950/50 text-red-400 border border-red-900/50">
+              <span class="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse inline-block"></span>
+              Live Recording
+            </span>
           </div>
+          <span class="text-[9px] text-slate-600 tracking-widest hidden sm:block">REF: dLnUTrfEkYw</span>
+        </div>
 
-          <div class="p-5 rounded-xl border border-slate-800 bg-slate-900/20 space-y-2.5 hover:border-slate-700 transition-all group">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
-              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Visual Intel (Vision)
-            </h3>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Clinical, completely local analysis of inbound tactical imagery, structural landmarks, and potential threat corridors.
-            </p>
-          </div>
-
-          <div class="p-5 rounded-xl border border-slate-800 bg-slate-900/20 space-y-2.5 hover:border-slate-700 transition-all group">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
-              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Secure Reporting
-            </h3>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              One-click generation of formal SITREPs matched with automated 60-second secure persistent file purging protocols.
-            </p>
+        <div class="border border-[#1e2d3d] bg-black overflow-hidden relative">
+          <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent z-10"></div>
+          <div class="aspect-video w-full relative">
+            <iframe
+              class="absolute inset-0 w-full h-full border-0"
+              src="https://www.youtube.com/embed/dLnUTrfEkYw"
+              title="Tactical Intelligence Workstation Demonstration"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
           </div>
         </div>
       </section>
 
-      <section id="sop" class="border border-slate-800 bg-slate-900/10 rounded-xl p-6 space-y-6 w-full shadow-lg">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-white border-b border-slate-800 pb-3 flex items-center gap-2">
-          <span>📋 Standard Operating Procedures (SOP)</span>
-        </h2>
+      <!-- ─── CAPABILITY MATRIX ─────────────────────────────────────── -->
+      <section id="capabilities" class="space-y-3">
+        <div class="text-[9px] font-bold tracking-[0.2em] text-cyan-500 uppercase">03 // Active Capability Matrix</div>
 
-        <div class="space-y-6 text-xs sm:text-sm">
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6">
-            <div class="md:col-span-3 font-bold text-emerald-400 uppercase tracking-wider text-xs">1. Mission Ingestion</div>
-            <div class="md:col-span-9 text-slate-400 leading-relaxed">
-              Simply drag and drop or upload any mission-specific PDF. The system will index it safely into the Mission Archive and provide an immediate BLUF (Bottom Line Up Front) summary.
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2d3d]">
+          {[
+            {
+              id: "CAP-01",
+              title: "Tactical RAG",
+              status: "Operational",
+              body: "Ingest mission SITREPs, fragmentary orders, and geospatial overlays for instant retrieval and contextual cross-analysis against the live mission archive."
+            },
+            {
+              id: "CAP-02",
+              title: "Doctrine-Aware Reasoning",
+              status: "Operational",
+              body: "Automated cross-referencing of tactical data assets against MOD Joint Service Publications and active Rules of Engagement to flag compliance deviations."
+            },
+            {
+              id: "CAP-03",
+              title: "Visual Intelligence",
+              status: "Operational",
+              body: "Fully local analysis of inbound tactical imagery, structural landmarks, and potential threat corridors via on-device vision models with zero data exfiltration."
+            },
+            {
+              id: "CAP-04",
+              title: "Secure Reporting",
+              status: "Operational",
+              body: "One-command generation of formal SITREPs as sanitized PDF readouts, with automated 60-second secure file purge following document creation."
+            },
+          ].map(cap => (
+            <div class="p-5 bg-[#080f1b] card-hover border border-transparent space-y-3 group">
+              <div class="flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                  <span class="text-[9px] text-slate-600 tracking-widest">{cap.id}</span>
+                  <h3 class="text-xs font-bold text-white uppercase tracking-wider group-hover:text-cyan-400 transition-colors">
+                    {cap.title}
+                  </h3>
+                </div>
+                <span class="tag bg-emerald-950/40 text-emerald-500 border border-emerald-900/40 shrink-0">{cap.status}</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-light">{cap.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- ─── STANDARD OPERATING PROCEDURES ────────────────────────── -->
+      <section id="sop" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="text-[9px] font-bold tracking-[0.2em] text-cyan-500 uppercase">04 // Standard Operating Procedures</div>
+          <span class="tag bg-slate-800/50 text-slate-500 border border-slate-700/50">Unclassified // Releasable</span>
+        </div>
+
+        <div class="border border-[#1e2d3d] bg-[#080f1b] divide-y divide-[#1e2d3d]">
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 sop-step pl-8 hover:bg-[#0a1220] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-cyan-600 tracking-widest font-bold">STEP 01</div>
+              <div class="text-xs font-bold text-white uppercase tracking-wide group-hover:text-cyan-400 transition-colors">Mission Ingestion</div>
+            </div>
+            <div class="md:col-span-9 text-[11px] text-slate-400 leading-relaxed font-light">
+              Drag and drop or upload mission-specific PDFs. The system indexes each document into the Mission Archive and immediately generates a BLUF (Bottom Line Up Front) summary with source attribution.
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6 border-t border-slate-900/80 pt-4">
-            <div class="md:col-span-3 font-bold text-emerald-400 uppercase tracking-wider text-xs">2. Doctrine Ingestion</div>
-            <div class="md:col-span-9 text-slate-400 space-y-2">
-              <p>To update the permanent knowledge base with JSPs or ROE cards, prepend queries using the <code class="text-cyan-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 text-[11px]">/policy</code> route selector token:</p>
-              <div class="bg-slate-950 border border-slate-900 p-2.5 rounded-lg text-xs text-slate-500 font-mono">
-                Example Query: <span class="text-slate-300">/policy [Attach PDF]</span>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 sop-step pl-8 hover:bg-[#0a1220] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-cyan-600 tracking-widest font-bold">STEP 02</div>
+              <div class="text-xs font-bold text-white uppercase tracking-wide group-hover:text-cyan-400 transition-colors">Doctrine Ingestion</div>
+            </div>
+            <div class="md:col-span-9 space-y-3">
+              <p class="text-[11px] text-slate-400 leading-relaxed font-light">
+                To update the persistent doctrine knowledge base with JSPs or ROE cards, use the <code class="text-cyan-400 bg-slate-950 px-1.5 py-0.5 border border-slate-800 text-[10px]">/policy</code> route token prepended to your query:
+              </p>
+              <div class="bg-slate-950 border border-[#1e2d3d] border-l-2 border-l-cyan-700 px-4 py-3 text-[10px] text-slate-400 font-mono">
+                <span class="text-slate-600">INPUT &gt;</span>&nbsp;<span class="text-slate-300">/policy [Attach PDF]</span>
               </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6 border-t border-slate-900/80 pt-4">
-            <div class="md:col-span-3 font-bold text-emerald-400 uppercase tracking-wider text-xs">3. Querying & Analysis</div>
-            <div class="md:col-span-9 text-slate-400 space-y-2">
-              <p>Ask system deployment questions naturally. The workstation queries both archives concurrently to form validated cross-references:</p>
-              <div class="bg-slate-950 border border-slate-900 p-3 rounded-lg text-xs space-y-1.5 text-slate-400 font-mono border-l-2 border-emerald-500 pl-4 bg-slate-900/40">
-                <p>&ldquo;What is the PID requirement for the technicals at objective ALFA?&rdquo;</p>
-                <p>&ldquo;Summarize all sightings of the white pickup truck from the last 3 SITREPs.&rdquo;</p>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 sop-step pl-8 hover:bg-[#0a1220] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-cyan-600 tracking-widest font-bold">STEP 03</div>
+              <div class="text-xs font-bold text-white uppercase tracking-wide group-hover:text-cyan-400 transition-colors">Querying & Analysis</div>
+            </div>
+            <div class="md:col-span-9 space-y-3">
+              <p class="text-[11px] text-slate-400 leading-relaxed font-light">
+                Query both archives concurrently using natural language. The system forms validated cross-references across mission data and doctrine automatically.
+              </p>
+              <div class="bg-slate-950 border border-[#1e2d3d] border-l-2 border-l-slate-700 px-4 py-3 text-[10px] space-y-2 font-mono">
+                <div><span class="text-slate-600">QUERY &gt;</span>&nbsp;<span class="text-slate-300">"What is the PID requirement for technicals at objective ALFA?"</span></div>
+                <div><span class="text-slate-600">QUERY &gt;</span>&nbsp;<span class="text-slate-300">"Summarize all sightings of the white pickup truck across the last 3 SITREPs."</span></div>
               </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6 border-t border-slate-900/80 pt-4">
-            <div class="md:col-span-3 font-bold text-amber-500 uppercase tracking-wider text-xs">4. Formal Export</div>
-            <div class="md:col-span-9 text-slate-400 space-y-2">
-              <p>Execute the 📄 <strong class="text-slate-200">Generate Formal SITREP</strong> interactive route to assemble clean, fully sanitized standalone PDF readouts.</p>
-              <div class="p-3 rounded-lg bg-amber-950/20 border border-amber-900/40 text-xs text-amber-300 font-mono leading-relaxed">
-                <span class="text-amber-500 font-bold">[!] WARNING // SECURE PURGE ACTIVE:</span> Generated reports are completely shredded from the local filesystem drive exactly 60 seconds after creation. Download or preserve them immediately.
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 sop-step pl-8 hover:bg-[#0a1220] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-amber-600 tracking-widest font-bold">STEP 04</div>
+              <div class="text-xs font-bold text-white uppercase tracking-wide group-hover:text-amber-400 transition-colors">Formal Export</div>
+            </div>
+            <div class="md:col-span-9 space-y-3">
+              <p class="text-[11px] text-slate-400 leading-relaxed font-light">
+                Execute the <strong class="text-slate-200 font-semibold">Generate Formal SITREP</strong> route to produce a sanitized, standalone PDF readout from the current session context.
+              </p>
+              <div class="bg-amber-950/20 border border-amber-900/40 px-4 py-3 text-[10px] text-amber-300 font-mono leading-relaxed">
+                <span class="text-amber-500 font-bold">[WARN] PURGE ACTIVE:</span>&nbsp;Generated reports are securely wiped from the local filesystem 60 seconds after creation. Download immediately upon generation.
               </div>
             </div>
           </div>
+
         </div>
       </section>
 
-      <section id="opsec" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-        <div class="border border-slate-800 bg-slate-900/20 rounded-xl p-5 space-y-4">
-          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> 🔒 OPSEC & Security Protocols
-          </h3>
-          <ul class="space-y-3 text-xs text-slate-400">
-            <li class="leading-relaxed">
-              <strong class="text-slate-200 block mb-0.5">Air-Gapped Logic:</strong>
-              This local node binds to loopback interface <code class="text-emerald-400 bg-slate-950 px-1 py-0.5 rounded border border-slate-800 font-mono text-[11px]">127.0.0.1</code>. External tracking telemetry routes are entirely omitted.
-            </li>
-            <li class="leading-relaxed">
-              <strong class="text-slate-200 block mb-0.5">Non-Persistent Storage:</strong>
-              All attached source target files are securely scrubbed via a deep 3-pass sector shredding sequence following embedding processing.
-            </li>
-            <li class="leading-relaxed">
-              <strong class="text-slate-200 block mb-0.5">Local Inference Loops:</strong>
-              Heavy models (<strong class="text-slate-300">Gemma 26B</strong> & <strong class="text-slate-300">Moondream</strong>) operate natively inside onboard GPU frameworks.
-            </li>
-          </ul>
-        </div>
+      <!-- ─── OPSEC + HARDWARE ──────────────────────────────────────── -->
+      <section id="opsec" class="space-y-3">
+        <div class="text-[9px] font-bold tracking-[0.2em] text-cyan-500 uppercase">05 // Security Architecture & Hardware Requirements</div>
 
-        <div class="border border-slate-800 bg-slate-900/20 rounded-xl p-5 space-y-4">
-          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <span class="w-1.5 h-1.5 bg-slate-500 rounded-full"></span> ⚙️ Hardware Requirements
-          </h3>
-          <ul class="space-y-3 text-xs text-slate-400">
-            <li class="leading-relaxed">
-              <strong class="text-slate-300 block mb-0.5">VRAM / RAM Parameters:</strong>
-              16GB+ minimum limit configuration (required for 4-bit / IQ4 quantized versioning arrays).
-            </li>
-            <li class="leading-relaxed">
-              <strong class="text-slate-300 block mb-0.5">Required Local Storage Space:</strong>
-              20GB+ free environment workspace capacity.
-            </li>
-            <li class="leading-relaxed">
-              <strong class="text-slate-300 block mb-0.5">Target Processing Chips:</strong>
-              NVIDIA RTX 3060/4060 Ti (16GB VRAM) or greater setups; or alternative Apple Silicon architecture Mac devices (M1/M2/M3/M4) holding 24GB+ Unified Memory blocks.
-            </li>
-          </ul>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2d3d]">
+
+          <!-- OPSEC -->
+          <div class="p-6 bg-[#080f1b] space-y-5">
+            <div class="flex items-center gap-2 pb-3 border-b border-[#1e2d3d]">
+              <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+              <h3 class="text-[10px] font-bold uppercase tracking-widest text-white">OPSEC Protocols</h3>
+            </div>
+            <div class="space-y-5">
+              {[
+                {
+                  title: "Air-Gapped Binding",
+                  body: "This node binds exclusively to loopback interface 127.0.0.1. External tracking telemetry routes are structurally omitted — not disabled, but absent."
+                },
+                {
+                  title: "Non-Persistent Storage",
+                  body: "All attached source documents are securely shredded via a 3-pass sector-level wipe following embedding completion. No residual data persists on disk."
+                },
+                {
+                  title: "Local Inference Only",
+                  body: "Heavy models (Gemma 27B, Moondream) execute natively within onboard GPU frameworks. No tokens leave the host machine at any point."
+                },
+              ].map(item => (
+                <div class="space-y-1">
+                  <div class="text-[10px] font-bold text-slate-200 tracking-wide">{item.title}</div>
+                  <p class="text-[11px] text-slate-500 leading-relaxed font-light">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Hardware -->
+          <div class="p-6 bg-[#080f1b] space-y-5">
+            <div class="flex items-center gap-2 pb-3 border-b border-[#1e2d3d]">
+              <span class="w-1.5 h-1.5 bg-slate-500 rounded-full"></span>
+              <h3 class="text-[10px] font-bold uppercase tracking-widest text-white">Hardware Requirements</h3>
+            </div>
+
+            <table class="w-full text-[10px]">
+              <thead>
+                <tr class="border-b border-[#1e2d3d]">
+                  <th class="text-left text-slate-600 tracking-widest uppercase pb-2 font-medium">Parameter</th>
+                  <th class="text-left text-slate-600 tracking-widest uppercase pb-2 font-medium">Minimum</th>
+                  <th class="text-left text-slate-600 tracking-widest uppercase pb-2 font-medium">Recommended</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#12202e]">
+                <tr>
+                  <td class="py-2.5 text-slate-400 font-medium pr-4">VRAM / RAM</td>
+                  <td class="py-2.5 text-slate-300">16 GB</td>
+                  <td class="py-2.5 text-cyan-400">24 GB+</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 text-slate-400 font-medium pr-4">Storage</td>
+                  <td class="py-2.5 text-slate-300">20 GB free</td>
+                  <td class="py-2.5 text-cyan-400">40 GB+ SSD</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 text-slate-400 font-medium pr-4">GPU (NVIDIA)</td>
+                  <td class="py-2.5 text-slate-300">RTX 3060 16GB</td>
+                  <td class="py-2.5 text-cyan-400">RTX 4080+</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 text-slate-400 font-medium pr-4">Apple Silicon</td>
+                  <td class="py-2.5 text-slate-300">M1 24GB</td>
+                  <td class="py-2.5 text-cyan-400">M3 Pro/Max 48GB</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 text-slate-400 font-medium pr-4">Quantization</td>
+                  <td class="py-2.5 text-slate-300">IQ4 / 4-bit</td>
+                  <td class="py-2.5 text-cyan-400">Q6_K / 8-bit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
         </div>
       </section>
 
-      <section id="download" class="border border-slate-800 bg-linear-to-b from-slate-900/30 to-slate-950/60 rounded-xl p-6 sm:p-8 text-center space-y-6 w-full relative shadow-xl">
-        <div class="max-w-xl mx-auto space-y-2">
-          <h2 class="text-base font-bold tracking-wider text-white uppercase font-mono">Request Software Deployment Bundle</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Select your host operational system matrix below. Request parameters generate an explicit target package configuration email build query directed immediately to the workstation administrator.
+      <!-- ─── DEPLOYMENT ─────────────────────────────────────────────── -->
+      <section id="deploy" class="border border-[#1e2d3d] bg-[#080f1b] relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+
+        <!-- Top bar -->
+        <div class="border-b border-[#1e2d3d] px-6 py-3 flex items-center justify-between">
+          <div class="text-[9px] font-bold tracking-[0.2em] text-cyan-500 uppercase">06 // Deployment Package Request</div>
+          <span class="tag bg-amber-950/40 text-amber-500 border border-amber-900/40">Controlled Distribution</span>
+        </div>
+
+        <div class="p-6 sm:p-8 space-y-6">
+          <p class="text-[11px] text-slate-400 leading-relaxed max-w-2xl font-light">
+            Select your target architecture below. Each request routes a deployment bundle inquiry directly to the system administrator and includes pre-configured Ollama manifests, model download scripts, and setup documentation.
           </p>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto pt-2">
-          <div class="p-5 rounded-xl border border-slate-800 bg-slate-950/80 flex flex-col justify-between items-center text-center gap-4 hover:border-slate-700 transition-colors">
-            <div class="space-y-1">
-              <span class="text-[9px] uppercase font-bold tracking-widest text-slate-500 block font-mono">Architecture Target</span>
-              <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wide">Windows OS</h4>
-            </div>
-            <a
-              href={`mailto:bradclemson97@gmail.com?subject=Tactical%20Intelligence%20Workstation%20-%20Windows%20Download%20Request&body=Hello%20Bradley,%0A%0AI%20am%20requesting%20the%20download%20package%20and%20deployment%20instructions%20for%20the%20Windows%20architecture%20version%20of%20the%20Tactical%20Intelligence%20Workstation.%0A%0AHost%20Compute%20Specifications:%20[Optional:%20Input%20RAM/GPU%20details]%0A%0AThank%20you.`}
-              class="w-full inline-block px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs font-bold uppercase rounded-md tracking-wider transition-all font-mono"
-            >
-              Windows – Request Build
-            </a>
-          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
 
-          <div class="p-5 rounded-xl border border-slate-800 bg-slate-950/80 flex flex-col justify-between items-center text-center gap-4 hover:border-slate-700 transition-colors">
-            <div class="space-y-1">
-              <span class="text-[9px] uppercase font-bold tracking-widest text-slate-500 block font-mono">Architecture Target</span>
-              <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wide">MacOS Apple Silicon</h4>
+            <div class="border border-[#1e2d3d] bg-[#030b14] p-5 space-y-4 card-hover">
+              <div class="space-y-1">
+                <div class="text-[9px] text-slate-600 tracking-widest uppercase">Target Architecture</div>
+                <div class="text-xs font-bold text-white tracking-wide">Windows &nbsp;/&nbsp; x86-64</div>
+                <div class="text-[9px] text-slate-600">CUDA · DirectML · WSL2 supported</div>
+              </div>
+              <a
+                href={`mailto:bradclemson97@gmail.com?subject=Tactical%20Intelligence%20Workstation%20%E2%80%94%20Windows%20Deployment%20Request&body=Hello%20Bradley%2C%0A%0AI%20am%20requesting%20the%20deployment%20bundle%20for%20the%20Windows%20(x86-64)%20version%20of%20the%20Tactical%20Intelligence%20Workstation.%0A%0AHost%20Specifications%20(optional)%3A%0A%20%20GPU%3A%20%0A%20%20VRAM%3A%20%0A%20%20RAM%3A%20%0A%0AThank%20you.`}
+                class="block w-full text-center px-4 py-2 text-[10px] font-bold uppercase tracking-widest border border-[#2d4055] text-slate-300 hover:border-cyan-700 hover:text-cyan-400 hover:bg-cyan-950/10 transition-all"
+              >
+                Request — Windows Build
+              </a>
             </div>
-            <a
-              href={`mailto:bradclemson97@gmail.com?subject=Tactical%20Intelligence%20Workstation%20-%20macOS%20Download%20Request&body=Hello%20Bradley,%0A%0AI%20am%20requesting%20the%20download%20package%20and%20deployment%20instructions%20for%20the%20macOS%20architecture%20version%20of%20the%20Tactical%20Intelligence%20Workstation.%0A%0AHost%20Compute%20Specifications:%20[Optional:%20Input%20RAM/Unified%20Memory%20details]%0A%0AThank%20you.`}
-              class="w-full inline-block px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs font-bold uppercase rounded-md tracking-wider transition-all font-mono"
-            >
-              macOS – Request Build
-            </a>
+
+            <div class="border border-[#1e2d3d] bg-[#030b14] p-5 space-y-4 card-hover">
+              <div class="space-y-1">
+                <div class="text-[9px] text-slate-600 tracking-widest uppercase">Target Architecture</div>
+                <div class="text-xs font-bold text-white tracking-wide">macOS &nbsp;/&nbsp; Apple Silicon</div>
+                <div class="text-[9px] text-slate-600">M1 · M2 · M3 · M4 · Unified Memory</div>
+              </div>
+              <a
+                href={`mailto:bradclemson97@gmail.com?subject=Tactical%20Intelligence%20Workstation%20%E2%80%94%20macOS%20Deployment%20Request&body=Hello%20Bradley%2C%0A%0AI%20am%20requesting%20the%20deployment%20bundle%20for%20the%20macOS%20(Apple%20Silicon)%20version%20of%20the%20Tactical%20Intelligence%20Workstation.%0A%0AHost%20Specifications%20(optional)%3A%0A%20%20Chip%3A%20%0A%20%20Unified%20Memory%3A%20%0A%0AThank%20you.`}
+                class="block w-full text-center px-4 py-2 text-[10px] font-bold uppercase tracking-widest border border-[#2d4055] text-slate-300 hover:border-cyan-700 hover:text-cyan-400 hover:bg-cyan-950/10 transition-all"
+              >
+                Request — macOS Build
+              </a>
+            </div>
+
           </div>
         </div>
       </section>
 
     </main>
 
-    <footer class="border-t border-slate-900 bg-slate-950 text-slate-600 text-[11px] py-8 text-center w-full">
-      <div class="max-w-5xl mx-auto px-4 space-y-1.5 font-mono">
-        <p class="text-slate-500 font-bold tracking-widest text-[10px]">TACTICAL INTELLIGENCE CORE WORKSTATION // OPERATIONAL INTERFACE</p>
-        <p>&copy; {new Date().getFullYear()} Bradley Clemson. All processing pipelines remain strictly localized by system design.</p>
+    <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
+    <footer class="border-t border-[#1e2d3d] bg-[#030b14] py-8">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[9px] text-slate-600 tracking-widest uppercase">
+          <div class="flex items-center gap-4">
+            <span class="text-cyan-700 font-bold">Defence Node // Tactical Intelligence Core</span>
+            <span class="hidden sm:inline">|</span>
+            <span class="hidden sm:inline">System v2.4</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span>All inference local by design</span>
+            <span>|</span>
+            <span>&copy; {new Date().getFullYear()} Bradley Clemson</span>
+          </div>
+        </div>
       </div>
     </footer>
 
