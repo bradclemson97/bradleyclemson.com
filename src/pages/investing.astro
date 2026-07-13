@@ -1,0 +1,42 @@
+---
+import Header from "../components/Header.astro";
+import Finance from "../components/Finance.astro";
+import Footer from "../components/Footer.astro";
+import { siteConfig } from "../config.ts";
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content="Personal investment portfolio tracking — long-term growth focused on technology and innovation." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Investing — {siteConfig.name}</title>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <div class="p-8 sm:p-12 md:px-16 lg:px-24 pt-20 pb-0">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors group"
+        >
+          <svg class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to home
+        </a>
+      </div>
+      <Finance />
+    </main>
+    <Footer />
+  </body>
+</html>
