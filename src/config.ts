@@ -5,7 +5,7 @@ export const siteConfig = {
   articles: [ /* ... */ ],
 
   name: "Bradley Clemson",
-  title: "Full Stack Developer",
+  title: "Full Stack Developer · Defence & Intelligence",
   description: "Portfolio website of Bradley Clemson",
   accentColor: "#1d4ed8",
   social: {

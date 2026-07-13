@@ -319,14 +319,25 @@
     "PORTFOLIO_AVG": 219.05
   },
   {
-    "date": "2026-06-02",
-    "AMZN": 65.28,
-    "MSFT": 13.15,
-    "GOOGL": 160.43,
-    "META": 54.37,
-    "NVDA": 262.37,
-    "PLTR": 845.74,
-    "ASML": 101.07,
-    "PORTFOLIO_AVG": 214.63
+    "date": "2026-06-30",
+    "AMZN": 53.57,
+    "MSFT": -4.36,
+    "GOOGL": 157.36,
+    "META": 45.63,
+    "NVDA": 225.77,
+    "PLTR": 625.11,
+    "ASML": 134.56,
+    "PORTFOLIO_AVG": 176.81
+  },
+  {
+    "date": "2026-07-10",
+    "AMZN": 58.08,
+    "MSFT": -1.26,
+    "GOOGL": 157.22,
+    "META": 73.02,
+    "NVDA": 243.47,
+    "PLTR": 688,
+    "ASML": 111.91,
+    "PORTFOLIO_AVG": 190.06
   }
 ]
