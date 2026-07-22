@@ -19,6 +19,13 @@ export const siteConfig = {
   skills: ["Java", ".NET", "C#", "Python", "SQL/PLSQL", "TypeScript", "React", "Terraform", "Docker", "AWS", "Azure", "Palantir"],
   projects: [
     {
+      name: "GOV RBAC",
+      description:
+        "A comprehensive service for managing user identity, profile details, and coordinating access control across a UK Government application. Fully scalable and secure with Keycloak IAM.",
+      link: "https://github.com/bradclemson97/user-management-service",
+      skills: ["Java", "RBAC", "Keycloak"],
+    },
+    {
       name: "Tactical Intelligence Workstation",
       description:
         "Secure, air-gapped-ready intelligence workstation, enabling local processing of tactical intelligence, doctrine-aware reasoning, and visual analysis, using Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG).",
@@ -38,13 +45,6 @@ export const siteConfig = {
         "Near real-time monitoring of military activity, hybrid threats, and geopolitical developments across Ukraine, Russia, the Baltic states, Poland, and Belarus.",
       link: "https://bradleyclemson.com/situation-room",
       skills: ["TypeScript", "React", "Geopolitics"],
-    },
-    {
-      name: "System User Management",
-      description:
-        "A comprehensive User Management and RBAC (Role-based Access Control) solution. Fully scalable and secure with Keycloak IAM.",
-      link: "https://github.com/bradclemson97/user-management-service",
-      skills: ["Java", "RBAC", "Keycloak"],
     },
     {
       name: "IoT Aware",

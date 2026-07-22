@@ -19,8 +19,8 @@
         "npm:astro@^5.12.3",
         "npm:maplibre-gl@^5.24.0",
         "npm:netlify-cli@^23.15.1",
-        "npm:react-dom@^19.2.7",
-        "npm:react@^19.2.7",
+        "npm:react-dom@^19.2.8",
+        "npm:react@^19.2.8",
         "npm:tailwindcss@^4.1.11",
         "npm:ts-node@^10.9.2",
         "npm:typescript@^5.9.3"

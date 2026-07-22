@@ -1,8 +1,9 @@
 ---
 import { siteConfig } from "../config.ts";
 // Filter out the featured project so it isn't duplicated on the page
+const featuredProjectName = "GOV RBAC";
 const projects = (siteConfig.projects ?? []).filter(
-  (project) => project.name !== "Tactical Intelligence Workstation"
+  (project) => project.name !== featuredProjectName
 );
 const hasProjects = projects.length > 0;
 ---
