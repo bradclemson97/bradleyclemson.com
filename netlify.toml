@@ -6,3 +6,14 @@ publish = "dist"
 command = "npm run dev"
 port = 8888
 targetPort = 4321
+
+# Redirect /user-management to the AWS-hosted app
+[[redirects]]
+  from   = "/user-management"
+  to     = "https://app.bradleyclemson.com"
+  status = 301
+
+[[redirects]]
+  from   = "/user-management/*"
+  to     = "https://app.bradleyclemson.com/:splat"
+  status = 301
