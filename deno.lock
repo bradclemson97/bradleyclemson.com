@@ -21,6 +21,7 @@
         "npm:netlify-cli@^23.15.1",
         "npm:react-dom@^19.2.8",
         "npm:react@^19.2.8",
+        "npm:recharts@^3.10.1",
         "npm:tailwindcss@^4.1.11",
         "npm:ts-node@^10.9.2",
         "npm:typescript@^5.9.3"

@@ -5,6 +5,7 @@ import SituationRoomMap from "../components/SituationRoomMap";
 import OsintFeed from "../components/OsintFeed";
 import WorldClock from "../components/WorldClock";
 import AiBrief from "../components/AiBrief";
+import NewsTimeline from "../components/NewsTimeline";
 import "../styles/global.css";
 ---
 
@@ -50,6 +51,11 @@ import "../styles/global.css";
           <AiBrief client:load />
           <SituationRoomMap client:load />
         </div>
+      </section>
+
+      <!-- Coverage Analytics -->
+      <section class="mt-10">
+        <NewsTimeline client:load />
       </section>
 
       <!-- OSINT Feed -->
