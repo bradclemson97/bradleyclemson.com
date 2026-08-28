@@ -22,7 +22,7 @@ export const siteConfig = {
       name: "GOV RBAC",
       description:
         "A comprehensive service for managing user identity, profile details, and coordinating access control across a UK Government application. Fully scalable and secure with Keycloak IAM.",
-      link: "https://github.com/bradclemson97/user-management-service",
+      link: "https://bradleyclemson.com/gov-rbac",
       skills: ["Java", "RBAC", "Keycloak"],
     },
     {
