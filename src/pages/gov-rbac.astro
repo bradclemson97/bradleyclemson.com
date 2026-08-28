@@ -1,0 +1,587 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="GOV RBAC — A production-grade role-based access control platform built on Spring Boot microservices with Keycloak IAM, designed for UK Government applications." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>GOV RBAC — User Management Service</title>
+    <style>
+      :root {
+        --gov:      #1d70b8;
+        --gov-dk:   #144e82;
+        --gov-lt:   #d2e2f1;
+        --body-bg:  #f3f2f1;
+        --white:    #ffffff;
+        --text:     #0b0c0c;
+        --text-sec: #505a5f;
+        --text-mut: #6f777b;
+        --border:   #b1b4b6;
+        --border-lt:#d8d8d8;
+        --code-bg:  #f0f0ef;
+      }
+
+      body {
+        background-color: var(--body-bg);
+        color: var(--text);
+        font-family: 'IBM Plex Mono', monospace;
+      }
+
+      /* GOV.UK header stripe */
+      .gov-stripe {
+        background: var(--gov);
+        height: 10px;
+      }
+
+      .tag {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 2px;
+      }
+
+      /* Screenshot tabs */
+      .ss-tab {
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .ss-tab.active {
+        border-bottom-color: var(--gov) !important;
+        color: var(--gov) !important;
+      }
+      .ss-tab:hover { color: var(--gov); }
+
+      .ss-panel { display: none; }
+      .ss-panel.active { display: block; }
+
+      /* Flow step left border */
+      .flow-step {
+        border-left: 3px solid var(--border-lt);
+        transition: border-color 0.2s;
+      }
+      .flow-step:hover { border-left-color: var(--gov); }
+
+      /* Subtle card hover */
+      .card-hover {
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .card-hover:hover {
+        border-color: var(--gov);
+        box-shadow: 0 2px 8px rgba(29,112,184,0.08);
+      }
+
+      /* Buttons */
+      .btn-dark {
+        background-color: #0b0c0c;
+        color: #ffffff;
+      }
+      .btn-dark:hover { background-color: #333333; }
+
+      .btn-gov {
+        background-color: #1d70b8;
+        color: #ffffff;
+      }
+      .btn-gov:hover { background-color: #144e82; }
+
+      /* Code inline */
+      code {
+        background: var(--code-bg);
+        border: 1px solid var(--border-lt);
+        padding: 1px 5px;
+        font-size: 10px;
+        border-radius: 2px;
+        color: var(--text);
+      }
+    </style>
+  </head>
+
+  <body class="antialiased">
+
+    <!-- GOV.UK colour bar -->
+    <div class="gov-stripe"></div>
+
+    <!-- Nav -->
+    <header class="bg-white border-b border-[#b1b4b6] sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
+
+        <div class="flex items-center gap-3">
+          <!-- Crown mark -->
+          <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M9 0L11 5H16.5L12 8.5L14 14H9H4L6 8.5L1.5 5H7L9 0Z" fill="#1d70b8"/>
+          </svg>
+          <span class="text-[11px] font-bold tracking-[0.15em] text-[#0b0c0c] uppercase">GOV RBAC</span>
+          <span class="hidden sm:block text-[#b1b4b6] mx-1">·</span>
+          <span class="hidden sm:block text-[10px] text-[#505a5f] tracking-wide uppercase font-medium">User Management Service</span>
+        </div>
+
+        <div class="flex items-center gap-5">
+          <nav class="hidden md:flex items-center gap-5 text-[10px] uppercase tracking-widest text-[#505a5f] font-medium">
+            <a href="#screenshots" class="hover:text-[#1d70b8] transition-colors">Screenshots</a>
+            <a href="#features"    class="hover:text-[#1d70b8] transition-colors">Features</a>
+            <a href="#architecture" class="hover:text-[#1d70b8] transition-colors">Architecture</a>
+            <a href="#docs"        class="hover:text-[#1d70b8] transition-colors">Docs</a>
+          </nav>
+          <a href="/" class="text-[10px] border border-[#b1b4b6] bg-[#f3f2f1] px-3 py-1.5 text-[#505a5f] hover:border-[#1d70b8] hover:text-[#1d70b8] transition-all font-bold tracking-widest uppercase">
+            ← Portfolio
+          </a>
+        </div>
+
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-14">
+
+      <!-- ─── HERO ─────────────────────────────────────────────────────── -->
+      <section class="bg-white border border-[#b1b4b6]">
+
+        <!-- Top meta bar -->
+        <div class="border-b border-[#d8d8d8] px-6 sm:px-8 py-2.5 flex items-center justify-between bg-[#f3f2f1]">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="tag bg-[#d2e2f1] text-[#1d70b8]">GOV.UK Design System</span>
+            <span class="tag bg-[#cce2d8] text-[#005a30]">Production Ready</span>
+            <span class="tag bg-[#f0f0ef] text-[#505a5f] border border-[#d8d8d8]">4 Microservices</span>
+          </div>
+          <span class="text-[9px] text-[#6f777b] tracking-widest hidden sm:block font-mono">user-management-service</span>
+        </div>
+
+        <!-- Hero body -->
+        <div class="p-6 sm:p-10 lg:p-14 space-y-7">
+          <div class="space-y-3">
+            <div class="text-[9px] font-bold tracking-[0.2em] text-[#1d70b8] uppercase">01 // Overview</div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0b0c0c] leading-tight">
+              GOV RBAC
+            </h1>
+            <p class="text-lg text-[#505a5f] font-medium">Role-Based Access Control · UK Government</p>
+            <div class="w-14 h-1 bg-[#1d70b8] mt-1"></div>
+          </div>
+
+          <p class="text-sm text-[#0b0c0c] leading-relaxed max-w-2xl">
+            A production-grade RBAC platform spanning four Spring Boot microservices. Manages user identity,
+            role assignment, capability enforcement, and Keycloak IAM integration — all behind a server-side
+            rendered GOV.UK Design System interface. Authentication is OIDC-based with PKCE;
+            authorisation uses capability claims embedded directly in signed JWTs, eliminating per-request
+            access control lookups at runtime.
+          </p>
+
+          <!-- Tech stack -->
+          <div class="flex flex-wrap gap-2">
+            {["Spring Boot 3", "Java 17", "Keycloak", "PostgreSQL", "Node.js", "TypeScript", "OIDC / PKCE", "JWT", "GOV.UK Frontend v6"].map(t => (
+              <span class="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 border border-[#b1b4b6] bg-[#f3f2f1] text-[#505a5f]">{t}</span>
+            ))}
+          </div>
+
+          <!-- CTAs -->
+          <div class="flex flex-wrap gap-3 pt-1">
+            <a
+              href="https://github.com/bradclemson97/user-management-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-dark inline-flex items-center gap-2.5 px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              View on GitHub
+            </a>
+            <a
+              href="#docs"
+              class="px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest border-2 border-[#1d70b8] text-[#1d70b8] hover:bg-[#d2e2f1] transition-colors"
+            >
+              Application Guide
+            </a>
+            <a
+              href="#screenshots"
+              class="px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest border border-[#b1b4b6] text-[#505a5f] hover:border-[#505a5f] hover:text-[#0b0c0c] transition-colors"
+            >
+              Screenshots
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── STATS STRIP ──────────────────────────────────────────────── -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 border border-[#b1b4b6] divide-x divide-[#b1b4b6] divide-y sm:divide-y-0 bg-white">
+        {[
+          { label: "Services",       value: "4",           accent: true  },
+          { label: "Auth Protocol",  value: "OIDC / PKCE", accent: false },
+          { label: "Identity Store", value: "Keycloak",    accent: false },
+          { label: "UI Standard",    value: "GOV.UK DS",   accent: false },
+        ].map(m => (
+          <div class="px-5 py-4">
+            <div class="text-[9px] tracking-widest text-[#6f777b] uppercase mb-1">{m.label}</div>
+            <div class={`text-sm font-bold ${m.accent ? "text-[#1d70b8]" : "text-[#0b0c0c]"}`}>{m.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <!-- ─── SCREENSHOTS ───────────────────────────────────────────────── -->
+      <section id="screenshots" class="space-y-4">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="text-[9px] font-bold tracking-[0.2em] text-[#1d70b8] uppercase">02 // Application Screenshots</span>
+          <span class="tag bg-[#cce2d8] text-[#005a30]">Live Build</span>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="bg-white border border-[#b1b4b6] border-b-0">
+          <div class="flex overflow-x-auto">
+            {[
+              { id: 1, label: "Sign In"         },
+              { id: 2, label: "User Directory"  },
+              { id: 3, label: "User Profile"    },
+              { id: 4, label: "Role Management" },
+              { id: 5, label: "Audit History"   },
+            ].map((tab, i) => (
+              <button
+                id={`ss-tab-${tab.id}`}
+                class={`ss-tab shrink-0 px-5 py-3 text-[10px] font-bold tracking-widest uppercase text-[#6f777b] ${i < 4 ? "border-r border-[#d8d8d8]" : ""}${tab.id === 1 ? " active" : ""}`}
+                onclick={`switchSS(${tab.id})`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Screenshot panels -->
+        <div class="border border-[#b1b4b6] bg-white overflow-hidden">
+
+          <!-- Panel 1: Sign In -->
+          <div id="ss-panel-1" class="ss-panel active">
+            <div class="border-b border-[#d8d8d8] px-5 py-2.5 flex items-center justify-between bg-[#f3f2f1]">
+              <span class="text-[9px] text-[#505a5f] tracking-widest uppercase font-medium">OIDC Authentication — Keycloak-backed Sign In</span>
+              <span class="text-[9px] text-[#6f777b] tracking-widest">GOV.UK Frontend v6.4.0</span>
+            </div>
+            <img
+              src="/images/gov-rbac-1-login.png"
+              alt="GOV.UK Design System sign-in page with email and password fields and the GOV.UK crown logotype"
+              class="w-full block"
+              loading="eager"
+            />
+            <div class="bg-[#f3f2f1] border-t border-[#d8d8d8] px-5 py-3.5 flex items-start gap-3">
+              <span class="text-[#1d70b8] text-[9px] font-bold tracking-widest uppercase shrink-0 mt-0.5">Note</span>
+              <p class="text-[10px] text-[#505a5f] leading-relaxed">
+                Authentication uses the OIDC Authorization Code flow with PKCE via Keycloak. Login initiation is rate-limited to 20 requests per 15 minutes per IP. Sessions are regenerated on successful token exchange to prevent session fixation — access, ID, and refresh tokens are stored server-side only and never sent to the browser.
+              </p>
+            </div>
+          </div>
+
+          <!-- Panel 2: User Directory -->
+          <div id="ss-panel-2" class="ss-panel">
+            <div class="border-b border-[#d8d8d8] px-5 py-2.5 flex items-center justify-between bg-[#f3f2f1]">
+              <span class="text-[9px] text-[#505a5f] tracking-widest uppercase font-medium">User Directory — Search and List with Activity Status</span>
+              <span class="text-[9px] text-[#6f777b] tracking-widest">Requires: Search and View users</span>
+            </div>
+            <img
+              src="/images/gov-rbac-2-users.png"
+              alt="User directory table showing 10 users with name, email, and Active status tags. Includes a search by name field and Create user button."
+              class="w-full block"
+              loading="lazy"
+            />
+            <div class="bg-[#f3f2f1] border-t border-[#d8d8d8] px-5 py-3.5 flex items-start gap-3">
+              <span class="text-[#1d70b8] text-[9px] font-bold tracking-widest uppercase shrink-0 mt-0.5">Note</span>
+              <p class="text-[10px] text-[#505a5f] leading-relaxed">
+                The Active/Inactive status tag reflects the <code>active_ind</code> field, set daily by the inactivity scheduler (60-day threshold). The Create User button is rendered only when the signed-in user holds the <strong class="font-semibold text-[#0b0c0c]">User Administration</strong> permission role — the template adapts without a separate route.
+              </p>
+            </div>
+          </div>
+
+          <!-- Panel 3: User Profile -->
+          <div id="ss-panel-3" class="ss-panel">
+            <div class="border-b border-[#d8d8d8] px-5 py-2.5 flex items-center justify-between bg-[#f3f2f1]">
+              <span class="text-[9px] text-[#505a5f] tracking-widest uppercase font-medium">User Profile — Detail, Account Controls, and Role Links</span>
+              <span class="text-[9px] text-[#6f777b] tracking-widest">Permission-driven action rendering</span>
+            </div>
+            <img
+              src="/images/gov-rbac-3-user-detail.png"
+              alt="User detail page for Joan Collins showing profile fields, a Roles section with manage and audit links, and an Account section with lock and reset password controls."
+              class="w-full block"
+              loading="lazy"
+            />
+            <div class="bg-[#f3f2f1] border-t border-[#d8d8d8] px-5 py-3.5 flex items-start gap-3">
+              <span class="text-[#1d70b8] text-[9px] font-bold tracking-widest uppercase shrink-0 mt-0.5">Note</span>
+              <p class="text-[10px] text-[#505a5f] leading-relaxed">
+                Administrative actions (Reset password, Lock account) are conditionally rendered by Nunjucks against <code>currentUserRoles</code> — no separate admin template. Password reset generates a four-word temporary passphrase via Keycloak, displayed once and never persisted.
+              </p>
+            </div>
+          </div>
+
+          <!-- Panel 4: Manage Roles -->
+          <div id="ss-panel-4" class="ss-panel">
+            <div class="border-b border-[#d8d8d8] px-5 py-2.5 flex items-center justify-between bg-[#f3f2f1]">
+              <span class="text-[9px] text-[#505a5f] tracking-widest uppercase font-medium">Role Assignment — Two-Step Confirmation with Before/After Diff</span>
+              <span class="text-[9px] text-[#6f777b] tracking-widest">Requires: Manage permissions given to a user</span>
+            </div>
+            <img
+              src="/images/gov-rbac-4-manage-roles.png"
+              alt="Manage roles page for Joan Collins showing three checkboxes: User Core Access (checked), Customer Maintenance (checked and focused), and User Administration (unchecked). Save roles button below."
+              class="w-full block"
+              loading="lazy"
+            />
+            <div class="bg-[#f3f2f1] border-t border-[#d8d8d8] px-5 py-3.5 flex items-start gap-3">
+              <span class="text-[#1d70b8] text-[9px] font-bold tracking-widest uppercase shrink-0 mt-0.5">Note</span>
+              <p class="text-[10px] text-[#505a5f] leading-relaxed">
+                Changes are committed in two steps — this selection form, then a confirmation page showing the before/after diff. On save, ACM traverses the role inheritance graph, resolves the full capability set, then syncs <code>capabilities</code> and <code>systemRoles</code> as Keycloak user attributes so they are embedded in the next JWT.
+              </p>
+            </div>
+          </div>
+
+          <!-- Panel 5: Audit History -->
+          <div id="ss-panel-5" class="ss-panel">
+            <div class="border-b border-[#d8d8d8] px-5 py-2.5 flex items-center justify-between bg-[#f3f2f1]">
+              <span class="text-[9px] text-[#505a5f] tracking-widest uppercase font-medium">Audit History — Temporal Account and Role Assignment Log</span>
+              <span class="text-[9px] text-[#6f777b] tracking-widest">PostgreSQL temporal versioning triggers</span>
+            </div>
+            <img
+              src="/images/gov-rbac-5-audit.png"
+              alt="Audit history page for Joan Collins showing account changes table (timestamps, active/locked states, changed-by) and role assignment history table."
+              class="w-full block"
+              loading="lazy"
+            />
+            <div class="bg-[#f3f2f1] border-t border-[#d8d8d8] px-5 py-3.5 flex items-start gap-3">
+              <span class="text-[#1d70b8] text-[9px] font-bold tracking-widest uppercase shrink-0 mt-0.5">Note</span>
+              <p class="text-[10px] text-[#505a5f] leading-relaxed">
+                Every state change is captured by PostgreSQL <code>versioning()</code> triggers writing to mirrored history tables with a <code>sys_period tstzrange</code> validity window. No application-level audit logic — the database trigger is the complete mechanism.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── FEATURES ─────────────────────────────────────────────────── -->
+      <section id="features" class="space-y-4">
+        <div class="text-[9px] font-bold tracking-[0.2em] text-[#1d70b8] uppercase">03 // Feature Set</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            {
+              id: "F-01",
+              title: "User Creation — Saga Pattern",
+              body: "User creation orchestrates a distributed transaction across UMS, Keycloak (via KM), and ACM. If ACM fails after Keycloak succeeds, a compensation call rolls back the Keycloak account — all three systems stay consistent without a two-phase commit."
+            },
+            {
+              id: "F-02",
+              title: "JWT Permissions Embedding",
+              body: "Capabilities are written as Keycloak user attributes and embedded in JWTs via protocol mappers registered at startup. Downstream services read capabilities directly from the signed token — no ACM call at request time. HTTP fallback covers tokens predating the mappers."
+            },
+            {
+              id: "F-03",
+              title: "Account Lifecycle Management",
+              body: "Daily inactivity scheduler (60-day threshold) marks dormant accounts inactive. Hourly lock-sync detects Keycloak brute-force events (5-attempt threshold) and mirrors lock state to ACM. Admin unlock clears Keycloak state and resets failed attempt counts atomically."
+            },
+            {
+              id: "F-04",
+              title: "Audit Trail — Temporal Tables",
+              body: "PostgreSQL versioning triggers copy every modified row to a history table before the change is applied, recording validity via sys_period tstzrange. Role grant and revocation history is surfaced with modifier names resolved by cross-schema UUID join."
+            },
+            {
+              id: "F-05",
+              title: "Security — Layered Defence",
+              body: "Server-side sessions with httpOnly/secure cookies; CSRF via synchronizer token pattern; Helmet headers with strict CSP (no unsafe-inline); rate limiting on login; session regeneration on OIDC callback; locked-account guard that destroys sessions at the door."
+            },
+            {
+              id: "F-06",
+              title: "Permission-Driven UI Rendering",
+              body: "Route-level access control via requireRole middleware. Nunjucks templates render action controls (Reset password, Lock, Manage roles) conditionally against currentUserRoles — one template per page, every permission tier served."
+            },
+          ].map(f => (
+            <div class="bg-white border border-[#b1b4b6] p-5 space-y-3 card-hover">
+              <div>
+                <span class="text-[9px] text-[#1d70b8] tracking-widest font-bold">{f.id}</span>
+                <h3 class="text-xs font-bold text-[#0b0c0c] uppercase tracking-wide mt-1">{f.title}</h3>
+              </div>
+              <p class="text-[11px] text-[#505a5f] leading-relaxed">{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- ─── ARCHITECTURE ──────────────────────────────────────────────── -->
+      <section id="architecture" class="space-y-4">
+        <div class="text-[9px] font-bold tracking-[0.2em] text-[#1d70b8] uppercase">04 // Service Architecture</div>
+
+        <!-- Service table -->
+        <div class="bg-white border border-[#b1b4b6] overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-[10px]">
+              <thead>
+                <tr class="border-b border-[#d8d8d8] bg-[#f3f2f1]">
+                  <th class="text-left text-[#6f777b] tracking-widest uppercase px-5 py-3 font-medium">Service</th>
+                  <th class="text-left text-[#6f777b] tracking-widest uppercase px-5 py-3 font-medium">Stack</th>
+                  <th class="text-left text-[#6f777b] tracking-widest uppercase px-5 py-3 font-medium hidden md:table-cell">Responsibility</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#d8d8d8]">
+                {[
+                  { name: "user-management-ui",      stack: "Node.js · Express · TypeScript", resp: "Server-side rendered GOV.UK interface. Owns session, CSRF, OIDC callback, and token refresh.", accent: true  },
+                  { name: "user-management-service",  stack: "Spring Boot 3 · Java 17",       resp: "User identity, profile, account lifecycle, inactivity/lock schedulers, saga orchestration.", accent: false },
+                  { name: "access-control-manager",   stack: "Spring Boot 3 · Java 17",       resp: "Role and permission management, capability graph traversal, JWT attribute sync via KM.",  accent: false },
+                  { name: "keycloak-manager",         stack: "Spring Boot 3 · Java 17",       resp: "Keycloak Admin API proxy — creates users, writes attributes, manages protocol mappers.",   accent: false },
+                ].map(s => (
+                  <tr class="hover:bg-[#f8f8f7] transition-colors">
+                    <td class="px-5 py-3.5">
+                      <code class={`font-bold border-none bg-transparent p-0 text-[10px] ${s.accent ? "text-[#1d70b8]" : "text-[#0b0c0c]"}`}>{s.name}</code>
+                    </td>
+                    <td class="px-5 py-3.5 text-[#505a5f]">{s.stack}</td>
+                    <td class="px-5 py-3.5 text-[#6f777b] hidden md:table-cell leading-relaxed">{s.resp}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div class="border-t border-[#d8d8d8] px-5 py-3 bg-[#f3f2f1]">
+            <p class="text-[9px] text-[#6f777b] tracking-wide">All four services share a single PostgreSQL instance split across two schemas — user_management and access_control. Identity is correlated via a shared system_user_id UUID; no foreign key crosses schema boundaries.</p>
+          </div>
+        </div>
+
+        <!-- Key flows -->
+        <div class="bg-white border border-[#b1b4b6] divide-y divide-[#d8d8d8]">
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 flow-step pl-8 hover:bg-[#f8f8f7] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-[#1d70b8] tracking-widest font-bold">FLOW 01</div>
+              <div class="text-xs font-bold text-[#0b0c0c] uppercase tracking-wide group-hover:text-[#1d70b8] transition-colors">User Creation Saga</div>
+            </div>
+            <div class="md:col-span-9 space-y-3">
+              <p class="text-[11px] text-[#505a5f] leading-relaxed">
+                UMS persists the user record, calls KM to create the Keycloak account, then calls ACM to initialise access-control. If ACM fails, a compensation call to KM deletes the Keycloak account before rolling back the database transaction.
+              </p>
+              <div class="bg-[#f3f2f1] border border-[#d8d8d8] border-l-2 border-l-[#1d70b8] px-4 py-3 text-[9px] text-[#505a5f] font-mono leading-loose">
+                UI → UMS [DB insert] → KM [Keycloak create] → ACM [AC insert]<br/>
+                <span class="text-[#d4351c] font-bold">ACM fail</span> → KM [Keycloak rollback] → UMS [DB rollback]
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 flow-step pl-8 hover:bg-[#f8f8f7] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-[#1d70b8] tracking-widest font-bold">FLOW 02</div>
+              <div class="text-xs font-bold text-[#0b0c0c] uppercase tracking-wide group-hover:text-[#1d70b8] transition-colors">JWT Capability Embedding</div>
+            </div>
+            <div class="md:col-span-9 space-y-3">
+              <p class="text-[11px] text-[#505a5f] leading-relaxed">
+                On role change, ACM traverses the inheritance graph and writes resolved capabilities as Keycloak user attributes via KM. Protocol mappers registered at KM startup embed these in every subsequent JWT — no ACM call required during request processing.
+              </p>
+              <div class="bg-[#f3f2f1] border border-[#d8d8d8] border-l-2 border-l-[#1d70b8] px-4 py-3 text-[9px] text-[#505a5f] font-mono leading-loose">
+                Role change → ACM [graph traversal] → KM [write attributes] → Keycloak<br/>
+                Next token: capabilities: ["Create users", ...] embedded as signed claim
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 flow-step pl-8 hover:bg-[#f8f8f7] transition-colors group">
+            <div class="md:col-span-3 space-y-1">
+              <div class="text-[9px] text-[#1d70b8] tracking-widest font-bold">FLOW 03</div>
+              <div class="text-xs font-bold text-[#0b0c0c] uppercase tracking-wide group-hover:text-[#1d70b8] transition-colors">Login & Account Guard</div>
+            </div>
+            <div class="md:col-span-9">
+              <p class="text-[11px] text-[#505a5f] leading-relaxed">
+                After OIDC token exchange the UI fetches the user record from UMS. If <code>locked = true</code> is returned the session is destroyed immediately and the browser is redirected to an account-locked page — the user cannot enter the application. On success the session is regenerated and <code>last_login_date</code> is stamped.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── DOCUMENTATION ─────────────────────────────────────────────── -->
+      <section id="docs" class="bg-white border border-[#b1b4b6] overflow-hidden">
+
+        <div class="border-b border-[#d8d8d8] px-6 py-3.5 flex items-center justify-between bg-[#f3f2f1]">
+          <div class="text-[9px] font-bold tracking-[0.2em] text-[#1d70b8] uppercase">05 // Application Documentation</div>
+          <span class="tag bg-[#d2e2f1] text-[#1d70b8]">Comprehensive Guide</span>
+        </div>
+
+        <div class="p-6 sm:p-8 space-y-6">
+          <p class="text-sm text-[#505a5f] leading-relaxed max-w-2xl">
+            The repository includes a detailed application guide covering every feature, flow, and architectural
+            decision — from the data model and saga pattern through JWT embedding, session security, and GOV.UK
+            component usage.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[
+              { section: "§ 2.1",    title: "User Creation & Role Assignment",     desc: "Saga orchestration, Keycloak compensation, inheritance graph, two-step confirmation" },
+              { section: "§ 2.2",    title: "Activity Tracking & Inactivity",      desc: "Daily scheduler, 60-day threshold, active_ind, login date stamping" },
+              { section: "§ 2.3–2.4", title: "Password Reset & Account Locking",  desc: "Passphrase generation, brute-force sync, hourly lock scheduler, manual unlock" },
+              { section: "§ 2.5",    title: "Audit Trail & Observability",         desc: "Temporal tables, versioning triggers, MDC structured logging, correlation IDs" },
+              { section: "§ 3.1–3.2", title: "Data Model & Service Flows",        desc: "PostgreSQL schemas, entity relationships, cross-schema identity, saga diagram" },
+              { section: "§ 3.3–3.6", title: "Auth, JWT Embedding & Security",   desc: "OIDC PKCE flow, JWT embedding, CSP headers, CSRF, method-level authorisation" },
+            ].map(d => (
+              <div class="border border-[#d8d8d8] bg-[#f8f8f7] p-4 space-y-1.5 hover:border-[#1d70b8] transition-colors">
+                <div class="text-[9px] text-[#1d70b8] tracking-widest font-bold">{d.section}</div>
+                <div class="text-[10px] font-bold text-[#0b0c0c] tracking-wide">{d.title}</div>
+                <p class="text-[10px] text-[#6f777b] leading-relaxed">{d.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div class="flex flex-wrap gap-3 pt-1">
+            <a
+              href="https://github.com/bradclemson97/user-management-service/blob/main/APPLICATION_GUIDE.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-gov inline-flex items-center gap-2 px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest transition-colors"
+            >
+              Read the Full Application Guide →
+            </a>
+            <a
+              href="https://github.com/bradclemson97/user-management-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-[10px] uppercase font-bold tracking-widest border border-[#b1b4b6] text-[#505a5f] hover:border-[#0b0c0c] hover:text-[#0b0c0c] transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              GitHub Repository
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ─── FOOTER ───────────────────────────────────────────────────────── -->
+    <footer class="border-t border-[#b1b4b6] bg-[#f3f2f1] py-8">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[9px] text-[#6f777b] tracking-widest uppercase">
+          <div class="flex items-center gap-4">
+            <span class="text-[#1d70b8] font-bold">GOV RBAC // User Management Service</span>
+            <span class="hidden sm:inline">·</span>
+            <span class="hidden sm:inline">Spring Boot · Keycloak · GOV.UK DS</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <a href="/" class="hover:text-[#0b0c0c] transition-colors">← Portfolio</a>
+            <span>·</span>
+            <a href="https://github.com/bradclemson97/user-management-service" target="_blank" rel="noopener noreferrer" class="hover:text-[#0b0c0c] transition-colors">GitHub</a>
+            <span>·</span>
+            <span>&copy; {new Date().getFullYear()} Bradley Clemson</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      function switchSS(n: number) {
+        document.querySelectorAll('.ss-tab').forEach((t, i) => {
+          t.classList.toggle('active', i + 1 === n);
+        });
+        document.querySelectorAll('.ss-panel').forEach((p, i) => {
+          p.classList.toggle('active', i + 1 === n);
+        });
+      }
+      (window as any).switchSS = switchSS;
+    </script>
+
+  </body>
+</html>
