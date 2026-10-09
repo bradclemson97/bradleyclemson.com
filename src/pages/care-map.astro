@@ -1,0 +1,22 @@
+---
+import CareMap from "../components/CareMap";
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CareMap — Find the right care, faster</title>
+    <meta name="description" content="CareMap: A demonstration prototype to help find nearby UK healthcare facilities. Uses simulated waiting times — not connected to live NHS systems." />
+    <style>
+      /* GOV.UK base resets */
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+      body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <CareMap client:load />
+  </body>
+</html>
