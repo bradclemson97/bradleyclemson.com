@@ -5,7 +5,7 @@ export const siteConfig = {
   articles: [ /* ... */ ],
 
   name: "Bradley Clemson",
-  title: "Full Stack Developer · Defence & Intelligence",
+  title: "Full Stack Developer · Government & Defence",
   description: "Portfolio website of Bradley Clemson",
   accentColor: "#1d4ed8",
   social: {
@@ -33,11 +33,11 @@ export const siteConfig = {
       skills: ["LLM", "RAG", "Python"],
     },
     {
-      name: "Project Argus",
+      name: "Live Healthcare Availability Map",
       description:
-        "An advanced Visual Intelligence and Forensic Analysis platform, runs geospatial clustering engines to surface high-priority leads.",
-      link: "https://github.com/bradclemson97/argus",
-      skills: ["Python", "Typescript", "VLM"],
+        "Find the fastest appropriate healthcare near you by comparing live waits, travel times and service availability.",
+      link: "https://github.com/bradclemson97/care-map",
+      skills: ["Data", "Typescript", "GOV.UK"],
     },
     {
       name: "NATO Eastern Flank Monitor",
