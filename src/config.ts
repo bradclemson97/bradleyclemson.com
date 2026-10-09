@@ -36,7 +36,7 @@ export const siteConfig = {
       name: "Live Healthcare Availability Map",
       description:
         "Find the fastest appropriate healthcare near you by comparing live waits, travel times and service availability.",
-      link: "https://github.com/bradclemson97/care-map",
+      link: "https://bradleyclemson.com/care-map",
       skills: ["Data", "Typescript", "GOV.UK"],
     },
     {
