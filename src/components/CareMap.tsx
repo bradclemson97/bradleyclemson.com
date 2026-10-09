@@ -1148,6 +1148,7 @@ export default function CareMap() {
   const [simulatedDataTimestamp, setSimulatedDataTimestamp] = useState<Date>(new Date());
   const [refreshedWaitTimes, setRefreshedWaitTimes] = useState<Record<string, WaitTimeRecord>>(SIMULATED_WAIT_TIMES);
   const [mobileView, setMobileView] = useState<'map' | 'list'>('list');
+  const [searchExpanded, setSearchExpanded] = useState(true);
   // True when the viewport is narrower than 768 px (md breakpoint).
   // Computed in JS so we can conditionally render — inline styles always beat
   // Tailwind responsive classes, so className="md:hidden" doesn't work when the
@@ -1160,6 +1161,15 @@ export default function CareMap() {
   const [showDetail, setShowDetail] = useState(false);
 
   useEffect(() => { if (selectedFacilityId) setShowDetail(true); }, [selectedFacilityId]);
+
+  // Auto-collapse search panel on mobile once both location and need are selected
+  useEffect(() => {
+    if (isMobile && selectedLocation && need) {
+      setSearchExpanded(false);
+    } else if (!selectedLocation || !need) {
+      setSearchExpanded(true);
+    }
+  }, [isMobile, selectedLocation, need]);
 
   // Track viewport width so mobile tabs render correctly.
   useEffect(() => {
@@ -1186,8 +1196,14 @@ export default function CareMap() {
   }, []);
 
   const handleSelectFacility = useCallback((id: string) => {
-    setSelectedFacilityId(id); setShowDetail(true);
-  }, []);
+    setSelectedFacilityId(id);
+    setShowDetail(true);
+    // On mobile: marker taps happen on the map tab, but detail renders in the
+    // sidebar (list tab). Switch tabs so the panel is actually visible.
+    if (isMobile && mobileView === 'map') {
+      setMobileView('list');
+    }
+  }, [isMobile, mobileView]);
 
   const handleCloseDetail = useCallback(() => {
     setSelectedFacilityId(null); setShowDetail(false);
@@ -1301,13 +1317,13 @@ export default function CareMap() {
         {(!isMobile || mobileView === 'list') && (
           <aside
             style={{
-              width: '400px', minWidth: '320px', maxWidth: '430px',
+              width: isMobile ? '100%' : '400px',
+              minWidth: isMobile ? 0 : '320px',
+              maxWidth: isMobile ? '100%' : '430px',
               flexShrink: 0, display: 'flex', flexDirection: 'column',
-              overflow: 'hidden', borderRight: `1px solid ${G.border}`, background: G.white,
+              overflow: 'hidden', borderRight: isMobile ? 'none' : `1px solid ${G.border}`, background: G.white,
             }}
           >
-            {/* When a facility detail is open, give it the entire sidebar height.
-                Keeping SearchPanel visible above it left only ~200 px of scroll area. */}
             {showDetail && selectedFacilityId ? (
               <FacilityDetailPanel
                 facilityId={selectedFacilityId}
@@ -1318,23 +1334,39 @@ export default function CareMap() {
               />
             ) : (
               <>
-                <SearchPanel
-                  selectedLocation={selectedLocation}
-                  customLocationText={customLocationText}
-                  need={need}
-                  needDescription={needDescription}
-                  simulatedDataTimestamp={simulatedDataTimestamp}
-                  onLocationSelect={handleLocationSelect}
-                  onCustomLocationChange={setCustomLocationText}
-                  onNeedSelect={handleNeedSelect}
-                  onNeedDescriptionChange={setNeedDescription}
-                  onRefresh={handleRefresh}
-                  onUseMyLocation={handleUseMyLocation}
-                  geoError={geoError}
-                />
-                {/* Shared container: gives ResultsList + ComparisonPanel the remaining
-                    sidebar height. Both must live inside a bounded flex column so
-                    ComparisonPanel is genuinely constrained and can scroll. */}
+                {/* On mobile, collapse SearchPanel to a compact summary bar once both
+                    location and need are set — this gives ResultsList room to breathe. */}
+                {isMobile && !searchExpanded && selectedLocation && need ? (
+                  <div style={{
+                    padding: '8px 15px', background: G.grey3, borderBottom: `1px solid ${G.border}`,
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
+                  }}>
+                    <span style={{ ...s.bodyS, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {selectedLocation.name} · {NEED_OPTIONS.find((o) => o.id === need)?.label}
+                    </span>
+                    <button
+                      onClick={() => setSearchExpanded(true)}
+                      style={{ ...s.btnSecondary, fontSize: '13px', padding: '4px 10px', marginLeft: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}
+                    >
+                      Edit ▾
+                    </button>
+                  </div>
+                ) : (
+                  <SearchPanel
+                    selectedLocation={selectedLocation}
+                    customLocationText={customLocationText}
+                    need={need}
+                    needDescription={needDescription}
+                    simulatedDataTimestamp={simulatedDataTimestamp}
+                    onLocationSelect={handleLocationSelect}
+                    onCustomLocationChange={setCustomLocationText}
+                    onNeedSelect={handleNeedSelect}
+                    onNeedDescriptionChange={setNeedDescription}
+                    onRefresh={handleRefresh}
+                    onUseMyLocation={handleUseMyLocation}
+                    geoError={geoError}
+                  />
+                )}
                 <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                   <ResultsList
                     recommendations={recommendations}
